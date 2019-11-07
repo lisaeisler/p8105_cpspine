@@ -17,6 +17,8 @@ library(haven)
 nsqipspineCP_1617 = read_csv("./data/nsqipspineCP_1617.csv")
 ```
 
+note: Where variable type and length disagree, we get error message. Coercion occurs and outcome is all numeric/all character for any given column with longest length.
+
 ## Data simplification
 
 ```{r}
