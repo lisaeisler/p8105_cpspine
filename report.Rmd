@@ -19,12 +19,27 @@ nsqipspineCP_1617 = read_csv("./data/nsqipspineCP_1617.csv")
 
 note: Where variable type and length disagree, we get error message. Coercion occurs and outcome is all numeric/all character for any given column with longest length.
 
-## Data simplification
+## Data simplification and coding
 
 ```{r}
-nsqipspineCP_tidy = nsqipspineCP_1617 %>%
-  select(pufyear_x:ped_spn_post_neurodeftype, age_days, sex, height, weight, ethnicity_hispanic, race, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, asaclas, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cnscoma, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation)
+cp_spine_tidy = nsqipspineCP_1617 %>%
+  select(pufyear_x:ped_spn_post_neurodeftype, age_days, sex, height, weight, ethnicity_hispanic, race, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, asaclas, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cnscoma, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation) %>%
+  mutate(
+    age_years = age_days/365.25,
+    height = height*2.54,
+    weight = weight/2.2) %>%
+  mutate(
+    bmi = weight/((height/100)*(height/100)),
+    asa_status = case_when(
+      asaclas == "ASA 1 - No Disturb" ~ "1",
+      asaclas == "ASA 2 - Mild Disturb" ~ "2",
+      asaclas == "ASA 3 - Severe Disturb" ~ "3",
+      asaclas == "ASA 4 - Life Threat" ~ "4",
+      asaclas == "None assigned" ~ "NA")) %>%
+  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation)
 ```
+
+
 
 
 
