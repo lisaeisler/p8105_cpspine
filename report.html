@@ -370,8 +370,13 @@ summary {
 
 
 <div id="data-import" class="section level2">
-<h2>Data Import</h2>
-<pre class="r"><code>nsqipspineCP_1617 = read_sas(&quot;./data/nsqipspineCP_1617.sas7bdat&quot;)</code></pre>
+<h2>Data import</h2>
+<pre class="r"><code>nsqipspineCP_1617 = read_csv(&quot;./data/nsqipspineCP_1617.csv&quot;)</code></pre>
+</div>
+<div id="data-simplification" class="section level2">
+<h2>Data simplification</h2>
+<pre class="r"><code>nsqipspineCP_tidy = nsqipspineCP_1617 %&gt;%
+  select(pufyear_x:ped_spn_post_neurodeftype, age_days, sex, height, weight, ethnicity_hispanic, race, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, asaclas, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cnscoma, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation)</code></pre>
 </div>
 
 
