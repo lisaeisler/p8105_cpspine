@@ -413,22 +413,22 @@ summary {
 </div>
 <div id="patient-demographics" class="section level2">
 <h2>Patient Demographics</h2>
-<pre class="r"><code>cp_spine_tidy %&gt;%
+<pre class="r"><code>data_sex = cp_spine_tidy %&gt;%
   group_by(reoperation) %&gt;% 
-  summarize(mean_age = mean(age_years), sd = sd(age_years))</code></pre>
-<pre><code>## # A tibble: 2 x 3
-##   reoperation mean_age    sd
-##   &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt;
-## 1 No              13.1  2.80
-## 2 Yes             13.6  2.49</code></pre>
-<pre class="r"><code>cp_spine_tidy %&gt;%
+  count(sex) %&gt;% 
+  pivot_wider(
+    names_from = &quot;reoperation&quot;,
+    values_from = &quot;n&quot;
+  ) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(percent = (yes/(no + yes))*100)</code></pre>
+<pre class="r"><code>data_age = cp_spine_tidy %&gt;%
+  group_by(reoperation) %&gt;% 
+  summarize(mean_age = mean(age_years), sd = sd(age_years))
+
+data_weight = cp_spine_tidy %&gt;%
   group_by(reoperation) %&gt;% 
   summarize(mean_weight = mean(weight, na.rm = TRUE), sd = sd(weight, na.rm = TRUE))</code></pre>
-<pre><code>## # A tibble: 2 x 3
-##   reoperation mean_weight    sd
-##   &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt;
-## 1 No                 33.6 11.1 
-## 2 Yes                32.7  8.05</code></pre>
 <pre class="r"><code>cp_spine_tidy %&gt;%
   group_by(reoperation) %&gt;% 
   count(sex)</code></pre>
