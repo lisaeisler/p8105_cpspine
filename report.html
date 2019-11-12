@@ -389,8 +389,27 @@ summary {
       asaclas == &quot;ASA 2 - Mild Disturb&quot; ~ &quot;2&quot;,
       asaclas == &quot;ASA 3 - Severe Disturb&quot; ~ &quot;3&quot;,
       asaclas == &quot;ASA 4 - Life Threat&quot; ~ &quot;4&quot;,
-      asaclas == &quot;None assigned&quot; ~ &quot;NA&quot;)) %&gt;%
-  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation)</code></pre>
+      asaclas == &quot;None assigned&quot; ~ &quot;NA&quot;),
+    home_discharge = case_when(
+      dischdest == &quot;Expired&quot; ~ &quot;FALSE&quot;,
+      dischdest == &quot;Facility Which was Home&quot; ~ &quot;TRUE&quot;,
+      dischdest == &quot;Home&quot; ~ &quot;TRUE&quot;,
+      dischdest == &quot;Rehab&quot; ~ &quot;FALSE&quot;,
+      dischdest == &quot;Separate Acute Care&quot; ~ &quot;FALSE&quot;,
+      dischdest == &quot;Skilled Care, Not Home&quot; ~ &quot;FALSE&quot;,
+      dischdest == &quot;Unknown&quot; ~ &quot;NA&quot;,
+      dischdest == &quot;Unskilled Facility Not Home&quot; ~ &quot;FALSE&quot;,
+      dischdest == &quot;NULL&quot; ~ &quot;NA&quot;
+    )) %&gt;%
+  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)</code></pre>
+<pre class="r"><code>cp_spine_tidy %&gt;%
+  group_by(reoperation) %&gt;%
+  summarize(n = n())</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   reoperation     n
+##   &lt;chr&gt;       &lt;int&gt;
+## 1 No            774
+## 2 Yes            56</code></pre>
 </div>
 
 
