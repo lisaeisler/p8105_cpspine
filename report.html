@@ -411,6 +411,66 @@ summary {
 ## 1 No            774
 ## 2 Yes            56</code></pre>
 </div>
+<div id="patient-demographics" class="section level2">
+<h2>Patient Demographics</h2>
+<pre class="r"><code>cp_spine_tidy %&gt;%
+  group_by(reoperation) %&gt;% 
+  summarize(mean_age = mean(age_years), sd = sd(age_years))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   reoperation mean_age    sd
+##   &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt;
+## 1 No              13.1  2.80
+## 2 Yes             13.6  2.49</code></pre>
+<pre class="r"><code>cp_spine_tidy %&gt;%
+  group_by(reoperation) %&gt;% 
+  summarize(mean_weight = mean(weight, na.rm = TRUE), sd = sd(weight, na.rm = TRUE))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   reoperation mean_weight    sd
+##   &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt;
+## 1 No                 33.6 11.1 
+## 2 Yes                32.7  8.05</code></pre>
+<pre class="r"><code>cp_spine_tidy %&gt;%
+  group_by(reoperation) %&gt;% 
+  count(sex)</code></pre>
+<pre><code>## # A tibble: 4 x 3
+## # Groups:   reoperation [2]
+##   reoperation sex        n
+##   &lt;chr&gt;       &lt;chr&gt;  &lt;int&gt;
+## 1 No          Female   401
+## 2 No          Male     373
+## 3 Yes         Female    27
+## 4 Yes         Male      29</code></pre>
+<pre class="r"><code>cp_spine_tidy %&gt;%
+  group_by(reoperation) %&gt;% 
+  count(race)</code></pre>
+<pre><code>## # A tibble: 10 x 3
+## # Groups:   reoperation [2]
+##    reoperation race                                          n
+##    &lt;chr&gt;       &lt;chr&gt;                                     &lt;int&gt;
+##  1 No          American Indian or Alaska Native              3
+##  2 No          Asian                                        23
+##  3 No          Black or African American                   193
+##  4 No          Native Hawaiian or Other Pacific Islander     4
+##  5 No          Unknown/Not Reported                         81
+##  6 No          White                                       470
+##  7 Yes         Asian                                         1
+##  8 Yes         Black or African American                    12
+##  9 Yes         Unknown/Not Reported                          8
+## 10 Yes         White                                        35</code></pre>
+<pre class="r"><code>cp_spine_tidy %&gt;%
+  group_by(reoperation) %&gt;% 
+  count(ethnicity_hispanic)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   reoperation [2]
+##   reoperation ethnicity_hispanic     n
+##   &lt;chr&gt;       &lt;chr&gt;              &lt;int&gt;
+## 1 No          No                   619
+## 2 No          NULL                  38
+## 3 No          Yes                  117
+## 4 Yes         No                    45
+## 5 Yes         NULL                   4
+## 6 Yes         Yes                    7</code></pre>
+</div>
 
 
 
