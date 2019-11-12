@@ -56,6 +56,28 @@ cp_spine_tidy %>%
   summarize(n = n())
 ```
 
+## Patient Demographics
+```{r}
+cp_spine_tidy %>%
+  group_by(reoperation) %>% 
+  summarize(mean_age = mean(age_years), sd = sd(age_years))
 
+cp_spine_tidy %>%
+  group_by(reoperation) %>% 
+  summarize(mean_weight = mean(weight, na.rm = TRUE), sd = sd(weight, na.rm = TRUE))
+```
 
+```{r}
+cp_spine_tidy %>%
+  group_by(reoperation) %>% 
+  count(sex)
 
+cp_spine_tidy %>%
+  group_by(reoperation) %>% 
+  count(race)
+
+cp_spine_tidy %>%
+  group_by(reoperation) %>% 
+  count(ethnicity_hispanic)
+```
+ 
