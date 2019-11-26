@@ -55,22 +55,30 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
 We selected to do a stepwise logistic regression analysis, because it is recommended for small sample size, and it penalizes the models with lots of parameters and models with poor fit.
 #Building the stepwise logistic regression analysis
 #Selection of candidate pre-operatice and peri-operative covariates for logistic regression
+## We selected weight as the best predictor out of height, weight BMI
+## Took out ethnicity and race as there is a 1/3 of teh data other so as predictor will not be meaningful.
 ```{r, message=FALSE, warning=FALSE}
 model_covariates = cp_spine_tidy %>% 
-  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge) %>% 
+  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, home_discharge) %>% 
   na.omit(.)
-just_covariates = model_covariates %>% select(home_discharge) %>% colnames(.)
-# Compactly create the full logistic model
-full_fmla = as.formula(
-  paste("home_discharge ~", paste(c(just_covariates), collapse = "+")))
-# Models to help guide the automatic procedures
-null = glm(home_discharge ~ 1, data = model_covariates, family = binomial())
-full = glm(full_fmla, data = model_covariates, family = binomial())
 ```
 
-##summary(step.model)
+```{r, message=FALSE, warning=FALSE}
+just_covariates = model_covariates %>% select(home_discharge) %>% colnames(.)
+```
+# Create the full logistic model
 
-glm(formula = any_ssi ~ length_of_stay + surgical_approach + 
-##     age + asa_class_id + admit_to_icu_postsurg + val_surgtime + 
-##     surgical_wound_closure + bmi + is_smoker + had_pneumonia + 
-##     had_dvt, family = binomial(), data = model_covariates)
+```{r, message=FALSE, warning=FALSE}
+full_fmla = as.formula(
+  paste("home_discharge ~", paste(c(just_covariates), collapse = "+")))
+```
+
+# Models to help guide the automatic procedures
+```{r, message=FALSE, warning=FALSE}
+null = glm(home_discharge ~ 1, data = model_covariates, family = binomial())%>%
+full = glm(full_fmla, data = model_covariates, family = binomial())%>%
+summary(step.model)
+```
+# Race ethinity  missing (report how many here) a lot of them too difficult to interprete has a lot of missing  look at the note above and incorporate
+```{r, message=FALSE, warning=FALSE}
+glm(formula = home_discharge ~ age_years+ sex+ weight+ asa_status+transt, ventilat+ asthma + hxcld + oxygen_sup + crf + impcogstat + seizure+  nutr_support + hemodisorder, family = binomial(), data = model_covariates)
