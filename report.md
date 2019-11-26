@@ -138,10 +138,11 @@ non-zero missingness. We converted age in days to age in years and
 height and weight to the metric system. We then created a BMI estimate
 based on height and weight. American Society of Anesthesiologists
 Physical Status Classification (ASA Class) was converted from a
-character variable to a factor variable. A dichotomous variable
-indicating whether the patient returned home or was discharged to a
-facility was created and null values deleted. A subset of the data was
-selected for analysis.
+character variable to a factor variable. Extent of surgical fusion
+(inflection point 13 levels) was used to create a dichotomous variable,
+level\_13. A dichotomous variable indicating whether the patient
+returned home or was discharged to a facility was created and null
+values deleted. A subset of the data was selected for analysis.
 
 ``` r
 cp_spine_tidy = nsqipspineCP_1617 %>%
