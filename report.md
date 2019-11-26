@@ -22,7 +22,7 @@ Postoperative Outcomes?
 
   - Katherine Dimitripoulou PhD (UNI: kd2524)
   - Jerri Chen MD, PhD (UNI: jc4166)
-  - Lisa Eisler (UNI: ldl2113)
+  - Lisa Eisler MD (UNI: ldl2113)
 
 <h1 id="intro">
 
@@ -45,46 +45,9 @@ Data Characterization
 
 ``` r
 library(tidyverse)
-```
-
-    ## -- Attaching packages --------------------------------- tidyverse 1.2.1 --
-
-    ## v ggplot2 3.2.1     v purrr   0.3.2
-    ## v tibble  2.1.3     v dplyr   0.8.3
-    ## v tidyr   1.0.0     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.4.0
-
-    ## -- Conflicts ------------------------------------ tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
 library(haven)
 library(plotly)
-```
-
-    ## 
-    ## Attaching package: 'plotly'
-
-    ## The following object is masked from 'package:ggplot2':
-    ## 
-    ##     last_plot
-
-    ## The following object is masked from 'package:stats':
-    ## 
-    ##     filter
-
-    ## The following object is masked from 'package:graphics':
-    ## 
-    ##     layout
-
-``` r
 library(viridis)
-```
-
-    ## Loading required package: viridisLite
-
-``` r
 # Formatting plot output
 knitr::opts_chunk$set(
   out.width = "90%"
@@ -98,36 +61,6 @@ theme_set(theme_classic() +
 nsqipspineCP_1617 = read_csv("./data/nsqipspineCP_1617.csv")
 ```
 
-    ## Warning: Missing column names filled in: 'X1' [1]
-
-    ## Parsed with column specification:
-    ## cols(
-    ##   .default = col_character(),
-    ##   X1 = col_double(),
-    ##   pufyear_x = col_double(),
-    ##   case_id = col_double(),
-    ##   ped_spn_trnsvol_cell = col_double(),
-    ##   ped_spn_trnsvol_allogen = col_double(),
-    ##   ped_spn_post_trnsvol_cell = col_double(),
-    ##   ped_spn_post_trnsvol_allogen = col_double(),
-    ##   pufyear_y = col_double(),
-    ##   age_days = col_double(),
-    ##   cpt = col_double(),
-    ##   workrvu = col_double(),
-    ##   admyr = col_double(),
-    ##   operyr = col_double(),
-    ##   hto_o_day = col_double(),
-    ##   height = col_double(),
-    ##   weight = col_double(),
-    ##   gestationalage_birth = col_double(),
-    ##   gestationalage_surgery = col_double(),
-    ##   birth_wgt_lb = col_double(),
-    ##   birth_wgt_oz = col_double()
-    ##   # ... with 126 more columns
-    ## )
-
-    ## See spec(...) for full column specifications.
-
 In its raw form, the data has 830 rows and 384 columns. Each row
 corresponds to a single spinal fusion and 384 demographic, medical,
 surgical, and pre/intra/postoperative characteristics and events, which
@@ -137,7 +70,9 @@ A copy of the data could not be shared due to licensing agreements.
 
 This is a focused analysis, interested only in a handful of important
 postoperative outcomes as they relate to the recovery of CP patients
-undergoing spinal fusion. Therefore we will tidy the data to that end.
+undergoing spinal fusion. These variables are defined here: (FROM JERRI)
+
+Therefore we will tidy the data to that end.
 
 <h1 id="tidying">
 

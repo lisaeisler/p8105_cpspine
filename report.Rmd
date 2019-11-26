@@ -23,7 +23,7 @@ output: github_document
 
 * Katherine Dimitripoulou PhD (UNI: kd2524)
 * Jerri Chen MD, PhD (UNI: jc4166)
-* Lisa Eisler (UNI: ldl2113)
+* Lisa Eisler MD (UNI: ldl2113)
 
 <h1 id="intro">Introduction</h1>
 
@@ -39,7 +39,7 @@ Insert Intro
 
 <h1 id="characterize">Data Characterization</h1>
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(haven)
 library(plotly)
@@ -61,7 +61,9 @@ In its raw form, the data has `r nrow(nsqipspineCP_1617)` rows and `r ncol(nsqip
 
 A copy of the data could not be shared due to licensing agreements.
 
-This is a focused analysis, interested only in a handful of important postoperative outcomes as they relate to the recovery of CP patients undergoing spinal fusion. Therefore we will tidy the data to that end.
+This is a focused analysis, interested only in a handful of important postoperative outcomes as they relate to the recovery of CP patients undergoing spinal fusion. These variables are defined here: (FROM JERRI)
+
+Therefore we will tidy the data to that end.
 
 <h1 id="tidying">Tidying the Data</h1>
 
