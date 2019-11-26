@@ -79,6 +79,6 @@ null = glm(home_discharge ~ 1, data = model_covariates, family = binomial())%>%
 full = glm(full_fmla, data = model_covariates, family = binomial())%>%
 summary(step.model)
 ```
-# Race ethinity  missing (report how many here) a lot of them too difficult to interprete has a lot of missing 
+# Race ethinity  missing (report how many here) a lot of them too difficult to interprete has a lot of missing  look at the note above and incorporate
 ```{r, message=FALSE, warning=FALSE}
 glm(formula = home_discharge ~ age_years+ sex+ weight+ asa_status+transt, ventilat+ asthma + hxcld + oxygen_sup + crf + impcogstat + seizure+  nutr_support + hemodisorder, family = binomial(), data = model_covariates)
