@@ -49,65 +49,66 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
       dischdest == "Unskilled Facility Not Home" ~ "FALSE",
       dischdest == "NULL" ~ "NA"
     )) %>%
+  filter(home_discharge != "NA") %>% 
   select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
 ```
 
 ## Patient Demographics
 ### For Visualization
 
-Count of patients who needed re-operation within 30 days.
+Count of patients who did not have home discharge.
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(reoperation) %>%
+  group_by(home_discharge) %>%
   summarize(n = n()) %>% 
   plot_ly(
-    x = ~reoperation, y = ~n, type = "bar"
+    x = ~home_discharge, y = ~n, type = "bar"
     )
 ```
 
 Stratified by sex.
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(sex) %>% 
   plot_ly(
-    x = ~reoperation, y = ~n, color = ~sex, type = "bar"
+    x = ~home_discharge, y = ~n, color = ~sex, type = "bar"
     )
 ```
 
-Age mean and SD of patients who did and did not require reoperation.
+Age mean and SD of patients who did and did not have home discharge.
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(sex, reoperation) %>% 
+  group_by(sex, home_discharge) %>% 
   summarize(mean_age = mean(age_years), sd = sd(age_years)) %>% 
   plot_ly(
-    x = ~reoperation, y = ~mean_age, color = ~sex, type = "bar"
+    x = ~home_discharge, y = ~mean_age, color = ~sex, type = "bar"
     )
 ```
 
-Distribution of age in patients who did and did not require reoperation.
+Distribution of age in patients who did and did not have home discharge.
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  plot_ly(y = ~age_years, color = ~reoperation, type = "box",
+  plot_ly(y = ~age_years, color = ~home_discharge, type = "box",
           colors = "Set2")
 ```
 
-Weight mean and SD of patients who did and did not require reoperation.
+Weight mean and SD of patients who did and did not have home discharge.
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(sex, reoperation) %>% 
+  group_by(sex, home_discharge) %>% 
   summarize(mean_weight = mean(weight, na.rm = TRUE), sd = sd(weight, na.rm = TRUE))
 ```
 
 Race distribution.
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(race) %>% 
   replace(is.na(.), 0) %>% 
   janitor::clean_names() %>% 
   plot_ly(
-    x = ~race, y = ~n, color = ~reoperation, type = "bar"
+    x = ~race, y = ~n, color = ~home_discharge, type = "bar"
     )
 ```
 
@@ -119,27 +120,28 @@ cp_spine_tidy %>%
     x = ~race, y = ~n, type = "bar"
     )
 ```
-And then this shows the percent of patients in each race group who required reoperation. We could show these side by side? Percent is probably better than raw numbers since that is harder to interpret accross groups.
+And then this shows the percent of patients in each race group who and did not have home discharge. We could show these side by side? Percent is probably better than raw numbers since that is harder to interpret accross groups.
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(race) %>% 
   pivot_wider(
-    names_from = "reoperation",
+    names_from = "home_discharge",
     values_from = "n"
   ) %>% 
   janitor::clean_names() %>% 
-  mutate(percent_reop = (yes/(no + yes))*100) %>% 
+  mutate(percent_nothome = (false/(true + false))*100) %>% 
   replace(is.na(.), 0) %>% 
   plot_ly(
-    x = ~race, y = ~percent_reop, type = "bar"
+    x = ~race, y = ~percent_nothome, type = "bar"
     )
 ```
 
-Ethnicity distribution stratified by reop vs no reop. 
+
+Ethnicity distribution stratified by home vs. not home discharge. 
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(ethnicity_hispanic) %>% 
   janitor::clean_names() %>% 
   rename(ethnicity = ethnicity_hispanic) %>% 
@@ -149,7 +151,7 @@ cp_spine_tidy %>%
     ethnicity == "NULL" ~ "Other/Did Not Answer"
   ))  %>% 
   plot_ly(
-    x = ~ethnicity, y = ~n, color = ~reoperation, type = "bar"
+    x = ~ethnicity, y = ~n, color = ~home_discharge, type = "bar"
     )
 ```
 
@@ -171,7 +173,7 @@ cp_spine_tidy %>%
 
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(ethnicity_hispanic) %>% 
   rename(ethnicity = ethnicity_hispanic) %>% 
   mutate(ethnicity = case_when(
@@ -180,14 +182,14 @@ cp_spine_tidy %>%
     ethnicity == "NULL" ~ "Other/Did Not Answer"
   )) %>% 
     pivot_wider(
-    names_from = "reoperation",
+    names_from = "home_discharge",
     values_from = "n"
   ) %>% 
   janitor::clean_names() %>% 
-  mutate(percent_reop = (yes/(no + yes))*100) %>% 
+  mutate(percent_nothome = (false/(true + false))*100) %>% 
   replace(is.na(.), 0) %>% 
   plot_ly(
-    x = ~ethnicity, y = ~percent_reop, type = "bar"
+    x = ~ethnicity, y = ~percent_nothome, type = "bar"
     )
 ```
 
@@ -196,12 +198,12 @@ cp_spine_tidy %>%
 Diagnosis distribution.
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(ped_spn_class) %>% 
   replace(is.na(.), 0) %>% 
   janitor::clean_names() %>% 
   plot_ly(
-    x = ~ped_spn_class, y = ~n, color = ~reoperation, type = "bar"
+    x = ~ped_spn_class, y = ~n, color = ~home_discharge, type = "bar"
     )
 ```
 
@@ -210,7 +212,7 @@ Association between operation time and bleeding?
 cp_spine_tidy %>%
   plot_ly(
     x = ~optime, y = ~bleed_ml_tot, type = "scatter", mode = "markers",
-    color = ~reoperation, alpha = 0.5)
+    color = ~home_discharge, alpha = 0.5)
 ```
 
 Association between bleeding and length of stay?
@@ -218,7 +220,7 @@ Association between bleeding and length of stay?
 cp_spine_tidy %>%
   plot_ly(
     x = ~bleed_ml_tot, y = ~tothlos, type = "scatter", mode = "markers",
-    color = ~reoperation, alpha = 0.5)
+    color = ~home_discharge, alpha = 0.5)
 ```
 
 Association between age and operation time?
@@ -226,65 +228,65 @@ Association between age and operation time?
 cp_spine_tidy %>%
   plot_ly(
     x = ~age_years, y = ~optime, type = "scatter", mode = "markers",
-    color = ~reoperation, alpha = 0.5)
+    color = ~home_discharge, alpha = 0.5)
 ```
 
 ### For Tables (Pivot Wider)
 ```{r, message=FALSE, warning=FALSE}
-data_reop = cp_spine_tidy %>%
-  group_by(reoperation) %>%
+data_discharge = cp_spine_tidy %>%
+  group_by(home_discharge) %>%
   summarize(n = n()) %>% 
   pivot_wider(
-    names_from = "reoperation",
+    names_from = "home_discharge",
     values_from = "n"
   ) %>% 
   janitor::clean_names()%>% 
-  mutate(percent = (yes/(no + yes))*100)
+  mutate(percent = (false/(true + false))*100)
 ```
 
 ```{r, message=FALSE, warning=FALSE}
 data_sex = cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(sex) %>% 
   pivot_wider(
-    names_from = "reoperation",
+    names_from = "home_discharge",
     values_from = "n"
   ) %>% 
   janitor::clean_names() %>% 
-  mutate(percent = (yes/(no + yes))*100)
+  mutate(percent = (false/(true + false))*100)
 ```
 
 ```{r, message=FALSE, warning=FALSE}
 data_age = cp_spine_tidy %>%
-  group_by(sex, reoperation) %>% 
+  group_by(sex, home_discharge) %>% 
   summarize(mean_age = mean(age_years), sd = sd(age_years))
 ```
 
 ```{r, message=FALSE, warning=FALSE}
 data_weight = cp_spine_tidy %>%
-  group_by(sex, reoperation) %>% 
+  group_by(sex, home_discharge) %>% 
   summarize(mean_weight = mean(weight, na.rm = TRUE), sd = sd(weight, na.rm = TRUE))
 ```
 
 ```{r, message=FALSE, warning=FALSE}
 data_race = cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(race) %>% 
   pivot_wider(
-    names_from = "reoperation",
+    names_from = "home_discharge",
     values_from = "n"
   ) %>% 
   janitor::clean_names() %>% 
-  mutate(percent_reop = (yes/(no + yes))*100) %>% 
+  mutate(percent_nothome = (false/(true + false))*100) %>% 
   replace(is.na(.), 0)
 ```
 
 ```{r, message=FALSE, warning=FALSE}
 data_ethnicity = cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(ethnicity_hispanic) %>% 
   pivot_wider(
-    names_from = "reoperation",
+    names_from = "home_discharge",
     values_from = "n"
   ) %>% 
   janitor::clean_names() %>% 
@@ -298,20 +300,13 @@ data_ethnicity = cp_spine_tidy %>%
  
 ```{r, message=FALSE, warning=FALSE}
 data_diagnosis = cp_spine_tidy %>%
-  group_by(reoperation) %>% 
+  group_by(home_discharge) %>% 
   count(ped_spn_class) %>% 
   pivot_wider(
-    names_from = "reoperation",
+    names_from = "home_discharge",
     values_from = "n"
   ) %>% 
   replace(is.na(.), 0) %>% 
   janitor::clean_names()
 ```
  
-## Code for Home Discharge
-
-```{r, message=FALSE, warning=FALSE}
-data_discharge = cp_spine_tidy %>%
-  group_by(home_discharge) %>%
-  summarize(n = n())
-```
