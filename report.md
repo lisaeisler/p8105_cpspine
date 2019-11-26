@@ -35,15 +35,13 @@ Introduction
 Children with cerebral palsy (CP) often present with a curvature of the
 spine, or scoliosis, as a result of abnormal muscle tone and postural
 weakness.<sup>[1](https://www.flintrehab.com/2019/cerebral-palsy-scoliosis/)</sup>
-When CP patients develop scoliosis (incidence ranges from 15%-80% of
-patients) it is called neuromuscular scoliosis. The clinical
-characteristics of this disease involve a deformity of the lumbar and
-thoracic spine, often accompanied by pelvic torque and postural
-problems, which leads to loss of function and often pain. Severe
-neuromuscular scoliotic curves (\>50 degrees) are difficult to control
-with braces, especially if they are rapidly growing. Surgical treatment
-is often the recommended intervention to prevent further deterioration
-of functional mobility, and improve quality of life.
+The clinical characteristics of this scoliosis in CP patients involve a
+deformity of the lumbar and thoracic spine often accompanied by pelvic
+torque and postural problems, which leads to loss of function and pain.
+Severe spinal curves (\>50 degrees) are difficult to control with
+braces, especially if they are rapidly growing. Surgical treatment is
+often the recommended intervention to prevent further deterioration of
+functional mobility, and improve quality of life.
 
 The surgical treatment of individuals with CP who present with severe
 neuromuscular scoliosis has been associated with peri- and postoperative
@@ -169,8 +167,14 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
       dischdest == "Skilled Care, Not Home" ~ "FALSE",
       dischdest == "Unknown" ~ "NA",
       dischdest == "Unskilled Facility Not Home" ~ "FALSE",
-      dischdest == "NULL" ~ "NA"
-    )) %>%
+      dischdest == "NULL" ~ "NA"),
+    level_8 = case_when(
+      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 2 TO 3 VERTEBRAL SEGMENTS" ~ "FALSE",
+      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 4 TO 7 VERTEBRAL SEGMENTS" ~ "FALSE",
+      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 8 OR MORE VERTEBRAL SEGMENTS" ~ "TRUE",
+      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; UP TO 6 VERTEBRAL SEGMENTS" ~ "FALSE",
+      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 7 TO 12 VERTEBRAL SEGMENTS" ~ "TRUE",
+      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 13 OR MORE VERTEBRAL SEGMENTS" ~ "TRUE")) %>%
   filter(home_discharge != "NA") %>% 
-  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
+  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, level_8, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
 ```
