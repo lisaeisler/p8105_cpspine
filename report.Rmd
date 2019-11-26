@@ -1,5 +1,5 @@
 ---
-title: "Following up Spinal Fusion in Cerebral Palsy Patients: What Are 30-day Postoperative Outcomes?"
+title: "Predicting Non-Routine Discharge in Cerebral Palsy Patients Undergoing Spinal Fusion"
 output: github_document
 ---
 
@@ -27,11 +27,15 @@ output: github_document
 
 <h1 id="intro">Introduction</h1>
 
-Insert Intro
-<sup>[1](https://www.flintrehab.com/2019/cerebral-palsy-scoliosis/)</sup>
-
 ## Project Motivation
 
+Children with cerebral palsy (CP) often present with a curvature of the spine, or scoliosis, as a result of abnormal muscle tone and postural weakness.<sup>[1](https://www.flintrehab.com/2019/cerebral-palsy-scoliosis/)</sup> When CP patients develop scoliosis (incidence ranges from 15%-80% of patients) it is called neuromuscular scoliosis. The clinical characteristics of this disease involve a deformity of the lumbar and thoracic spine, often  accompanied by pelvic torque and postural problems, which leads to loss of function and often pain. Severe neuromuscular scoliotic curves (>50 degrees) are difficult to control with braces, especially if they are rapidly growing. Surgical treatment is often the recommended intervention to prevent further deterioration of functional mobility, and improve quality of life. 
+
+The surgical treatment of individuals with CP who present with severe neuromuscular scoliosis has been associated with peri- and postoperative complication rates as high as 75%. Mohamad et al. (2007) carried out a retrospective record review of 175 patients with neuromuscular scoliosis, with 73.7 % of them being patients with CP.<sup>[2](https://www.ncbi.nlm.nih.gov/pubmed/17513958/)</sup> The peri- and post-operative complications rate was 33.1 % (58/175). Patients experienced a combination of pulmonary complications (~20%), infections (8%), neurological (4%), and cardiovascular problems (4%). In another retrospective study, Tsirikos et al. (2008) reported data in 287 patients with CP who underwent spinal fusion.<sup>[3](https://www.ncbi.nlm.nih.gov/pubmed/18449049/)</sup> They reported major complications including 3 perioperative deaths, an intraoperative complication rate of 10.8 % (38/287), an early postoperative (within 6 weeks) complication rate of 9.4 % (27/287), and a late postoperative complication rate of 10.1 % (29/ 287). Lastly, a prospective cohort study with 127 patients with CP (Samdani, et.al. 2016) reported an overall 39.4% of  major perioperative complications that resulted in increased hospitalization length, use of intensive care unit, and readmission. The authors reported perioperative risk variables such as increase of blood loss, staged procedures and the lack of antifibrinolytic use.<sup>[4](https://www.ncbi.nlm.nih.gov/pubmed/26148567/)</sup> They also reported some pre-operative indicators such as the larger preoperative kyphosis, lower body mass index (BMI) as risk factors for complications.
+
+In all studies, there appear to be pre-operative risk factors associated with increased complications, but no study has comprehensively examined these factors. In addition, no study has examined non-routine discharge, with discharge to home (or home facility) assumed to be the routine as well as preferred outcome from a rehabilitation standpoint. We believe that patients and their families benefit from reasonable expectations about the chance of a decline in function, higher-level care needs or even death in the initial 30-day postoperative period. A model predicting non-routine discharge (defined as discharge to a higher level of care including postoperative death). 
+
+ Our team comprises anesthesiologists and rehabilitation therapists who can combine expertise to develop behavioral and biological intervention protocols, and to make decisions regarding the proper timing and optimization for surgery.
 
 
 ## Project Roadmap
