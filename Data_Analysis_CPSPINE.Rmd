@@ -46,7 +46,31 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
       dischdest == "Skilled Care, Not Home" ~ "FALSE",
       dischdest == "Unknown" ~ "NA",
       dischdest == "Unskilled Facility Not Home" ~ "FALSE",
-      dischdest == "NULL" ~ "NA"
-    )) %>%
+      dischdest == "NULL" ~ "NA")) %>%
   filter(home_discharge != "NA") %>% 
   select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
+```
+
+## Analysis
+We selected to do a stepwise logistic regression analysis, because it is recommended for small sample size, and it penalizes the models with lots of parameters and models with poor fit.
+#Building the stepwise logistic regression analysis
+#Selection of candidate pre-operatice and peri-operative covariates for logistic regression
+```{r, message=FALSE, warning=FALSE}
+model_covariates = cp_spine_tidy %>% 
+  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge) %>% 
+  na.omit(.)
+just_covariates = model_covariates %>% select(home_discharge) %>% colnames(.)
+# Compactly create the full logistic model
+full_fmla = as.formula(
+  paste("home_discharge ~", paste(c(just_covariates), collapse = "+")))
+# Models to help guide the automatic procedures
+null = glm(home_discharge ~ 1, data = model_covariates, family = binomial())
+full = glm(full_fmla, data = model_covariates, family = binomial())
+```
+
+##summary(step.model)
+
+glm(formula = any_ssi ~ length_of_stay + surgical_approach + 
+##     age + asa_class_id + admit_to_icu_postsurg + val_surgtime + 
+##     surgical_wound_closure + bmi + is_smoker + had_pneumonia + 
+##     had_dvt, family = binomial(), data = model_covariates)
