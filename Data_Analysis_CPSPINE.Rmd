@@ -8,9 +8,9 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(haven)
-library(plotly)
 library(viridis)
 ```
+
 
 ## Data import 
 
@@ -20,7 +20,7 @@ nsqipspineCP_1617 = read_csv("./nsqipspineCP_1617.csv")
 
 note: Where variable type and length disagree, we get error message. Coercion occurs and outcome is all numeric/all character for any given column with longest length.
 
-## Data simplification and coding
+## Initial Data Cleaning & Selection of a subset of data to examine the purpose of the study.
 
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy = nsqipspineCP_1617 %>%
@@ -53,51 +53,157 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
       prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 8 OR MORE VERTEBRAL SEGMENTS" ~ "FALSE",
       prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; UP TO 6 VERTEBRAL SEGMENTS" ~ "FALSE",
       prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 7 TO 12 VERTEBRAL SEGMENTS" ~ "FALSE",
-      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 13 OR MORE VERTEBRAL SEGMENTS" ~ "TRUE")) %>%
+      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 13 OR MORE VERTEBRAL SEGMENTS" ~ "TRUE"))  %>% 
   filter(home_discharge != "NA") %>% 
   select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, level_13, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
 ```
 ## Analysis
-We selected to do a stepwise logistic regression analysis, because it is recommended for small sample size, and it penalizes the models with lots of parameters and models with poor fit.
-#Building the stepwise logistic regression analysis
+Our goal is to develop a model,in which we can use important pre-operative factors to predict the patient's discharge at home. 
+The initial set of pre-operative variables is:
+pufyear_x:ped_spn_post_neurodeftype, 
+age_years= Age in Years (continues var.)
+sex=Gender (binary var.)
+height= Height (inch) (continues var.)
+weight= Weight(lbs) (continues var.)
+bmi= BMI (continues var.)
+ethnicity_hispanic=Ethnicity (Categorical var.)
+race= Race (Categorical var.)
+asa_status= ASA Classification (Categorical var.)
+transt= Transfer Status (Admitted from Home or ER, or Rehab Care facility, etc.) (Categorical var.)
+ventilat= Ventilator Dependence (binary var.)
+asthma=Asthma (binary var.)
+hxcld= Bronchopulmonary Dysplasia/Chronic Lung Disease (binary var.)
+oxygen_sup= Oxygen Support (binary var.)
+crf= Cardiac Risk Factors (Categorical var.)
+impcogstat= Developmental Delay/Impaired Cognitive Status (binary var.)
+seizure= Seizure Disorder (binary var.)
+nutr_support=Nutritional Support  (binary var.)
+hemodisorder=Hematologic Disorder (binary var.)
+level_13= Fusion of 13 or more vertebral segments (binary var.)
+
+## Selection of predictors to include in the model
+
+* From the series of variables  weight, height, and BMI (highly related) we selected based on literature review weight to be included in the model.
+* From our initial data visualization, ethnicity has large number of patients who self-identified as "Other", it is unclear how to use other to create preditions thus the ethnicity variable was eliminated. 
+* We examined the var "Transt" which indicates where the patient was before coming to surgery. The variable was turned in to binary "transt1", as the sample size does not allow for multiple categorical variables.  NEED TO TRANSFORM TO BINARY???
+* From the literature we know that cognitive ability can be a confound to the severity of Neuromusculoskeletal disorder and does not relate to medical complications. Thus, we eliminated from  the model "impcogstat".
+* Also recoded cardiac risk factor (crf) as a binary variable, again because of the small sample size.NEED TO TRANSFORM TO BINARY???
+* We will examine a total of 13 (will be 15 after we fix the two above) variables for the full model. Before entering the full model we will use cross tabs to see if there are any  cells with 0 (n=0).
 ```{r, message=FALSE, warning=FALSE}
-cp_spine_tidy %>%
-mutate(asa_level = ifelse(asa_status >2, 1, 0))
+model_data = cp_spine_tidy %>% 
+  mutate(
+    sex1=case_when(
+    sex=="Male"~"0",
+    sex=="Female"~"1"),
+    sex1=as.factor(sex1),
+    race = case_when(
+    race == "American Indian,Alaskan Native" ~ "1",
+    race == "Asian" ~ "2",
+    race == "Black or African American" ~ "3",
+    race == "Native Hawaiian or Other Pacific Islander" ~ "4",
+    race == "White" ~ "5",
+    race == "Unknown Not Reported" ~ "6"),
+    race1=as.factor(race),
+    asa_level = ifelse(asa_status >2, 1, 0),
+    asa_level=as.factor(asa_level),
+    ventilat1=case_when(
+    ventilat=="No"~"0",
+    ventilat=="Yes"~"1"),
+    ventilat1=as.factor(ventilat1), 
+  asthma1=case_when(
+    asthma=="No"~"0",
+    asthma=="Yes"~"1"),
+  asthma1=as.factor(asthma1),
+  hxcld1=case_when(
+    hxcld=="No"~"0",
+    hxcld=="Yes"~"1"),
+  hxcld1=as.factor(hxcld1),
+  oxygen_sup1=case_when(
+    oxygen_sup=="No"~"0",
+    oxygen_sup=="Yes"~"1"),
+  oxygen_sup1=as.factor(oxygen_sup1),
+  seizure1=case_when(
+    seizure=="No"~"0",
+    seizure=="Yes"~"1"),
+  seizure1=as.factor(seizure1),
+  nutr_support1=case_when(
+    nutr_support=="No"~"0",
+    nutr_support=="Yes"~"1"),
+  nutr_support1=as.factor(nutr_support1),
+hemodisorder1=case_when(
+    hemodisorder=="No"~"0",
+    hemodisorder=="Yes"~"1"),
+  hemodisorder1=as.factor(hemodisorder1),
+ level_13=as.factor(level_13),
+ home_discharge1=case_when(
+   home_discharge=="TRUE"~"1",
+   home_discharge=="FALSE"~"0"),
+home_discharge1=as.factor(home_discharge1))%>% 
+  select(age_years, weight, sex1, race1, asa_level, ventilat1, asthma1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
 ```
-#Selection of candidate pre-operatice and peri-operative covariates for logistic regression
-## We selected weight as the best predictor out of height, weight BMI
-## Took out ethnicity and race as there is a 1/3 of teh data other so as predictor will not be meaningful.
+1. Overall quick descriptives for the data entered in the model
 ```{r, message=FALSE, warning=FALSE}
-model_covariates = cp_spine_tidy %>% 
-  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_level, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, level_13, home_discharge) %>% 
-  na.omit(.)
+summary(model_data)
+```
+2. Two-way contingency tables of categorical outcome and predictors we want
+## to make sure there are no cells with n=0
+```{r, message=FALSE, warning=FALSE}
+xtabs(~ home_discharge1+ sex1, data = model_data)
 ```
 
 ```{r, message=FALSE, warning=FALSE}
-just_covariates = model_covariates %>% select(home_discharge) %>% colnames(.)
+xtabs(~ home_discharge1+ race1, data = model_data)
 ```
-# Create the full logistic model
+#Race cross tab with home_dicharge1 has 1 cell with 0 data point and two more cells with 15 and bellow data points. Thus race will be excluded from the model. 
 
 ```{r, message=FALSE, warning=FALSE}
-full_fmla = as.formula(
-  paste("home_discharge ~", paste(c(just_covariates), collapse = "+")))
+xtabs(~ home_discharge1+ asa_level, data = model_data)
+```
+* Cell with only 2 data points we may need to take out from the model (unstable model.
+```{r, message=FALSE, warning=FALSE}
+xtabs(~ home_discharge1+ ventilat1, data = model_data)
+```
+* cell with only 5 data points may consider to take out (unstable model)
+```{r, message=FALSE, warning=FALSE}
+xtabs(~ home_discharge1+ asthma1, data = model_data)
 ```
 
-# Models to help guide the automatic procedures
 ```{r, message=FALSE, warning=FALSE}
-null = glm(home_discharge ~ 1, data = model_covariates, family = binomial())
-full = glm(full_fmla, data = model_covariates, family = binomial())%>%
-summary(step.model)
-```
-##Stepwise regression to select best subset
-```{r, message=FALSE, warning=FALSE}
-step.model = step(null, direction = 'both', scope = list(upper = full))
-```
-## Summary
-```{r, message=FALSE, warning=FALSE}
-summary(step.model)
+xtabs(~ home_discharge1+ hxcld1, data = model_data)
 ```
 
-# Race ethinity  missing (report how many here) a lot of them too difficult to interprete has a lot of missing  look at the note above and incorporate
 ```{r, message=FALSE, warning=FALSE}
-glm(formula = home_discharge ~ age_years+ sex+ weight+ asa_status+transt, ventilat+ asthma + hxcld + oxygen_sup + crf + impcogstat + seizure+  nutr_support + hemodisorder, family = binomial(), data = model_covariates)
+xtabs(~ home_discharge1+ oxygen_sup1, data = model_data)
+```
+* we have a cell with only 3 counts may consider to take out.
+```{r, message=FALSE, warning=FALSE}
+xtabs(~ home_discharge1+ seizure1, data = model_data)
+```
+
+```{r, message=FALSE, warning=FALSE}
+xtabs(~ home_discharge1+ nutr_support1, data = model_data)
+```
+
+```{r, message=FALSE, warning=FALSE}
+xtabs(~ home_discharge1+ hemodisorder1, data = model_data)
+```
+
+```{r, message=FALSE, warning=FALSE}
+xtabs(~ home_discharge1+ level_13, data = model_data)
+```
+Logistic regression (Full Model with )
+```{r, message=FALSE, warning=FALSE}
+mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1+ asa_level + ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+summary(mylogit)
+```
+## Reduced model based on the cross tabs above (cells with counts <=5)
+
+```{r, message=FALSE, warning=FALSE}
+mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1+ asthma1 + hxcld1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+summary(mylogit)
+```
+## Reduced based on literature and visualization 
+```{r, message=FALSE, warning=FALSE}
+mylogit <- glm(home_discharge1 ~ age_years+ weight+ hemodisorder1+ level_13, data = model_data, family = "binomial")
+summary(mylogit)
+```
