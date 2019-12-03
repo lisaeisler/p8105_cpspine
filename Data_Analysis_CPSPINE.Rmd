@@ -87,7 +87,7 @@ level_13= Fusion of 13 or more vertebral segments (binary var.)
 * From our initial data visualization, ethnicity has large number of patients who self-identified as "Other", it is unclear how to use other to create preditions thus the ethnicity variable was eliminated. 
 * We examined the var "Transt" which indicates where the patient was before coming to surgery. The variable was turned in to binary "transt1", as the sample size does not allow for multiple categorical variables.  This below does not run.
 transt1 = case_when(
-      transt == "Chronic care;Rehab;Intermediate Care;Spinal Cord" ~ "FALSE",
+      transt == "Chronic care, Rehab,Intermediate Care;Spinal Cord" ~ "FALSE",
       transt == "Transferred from outside hospital (NICU, PICU, Inpatient on General floor, Adult" ~"FALSE",
       transt == "other" ~ "FALSE",
       transt == "Admitted from home;clinic;doctor's office" ~ "TRUE",
@@ -151,9 +151,22 @@ home_discharge1=as.factor(home_discharge1),
       crf == "Severe cardiac risk factors" ~"FALSE",
       crf == "Minor cardiac risk factors" ~ "TRUE",
       crf == "No cardiac risk factors" ~ "TRUE"), 
-  crf1=as.factor(crf1))%>%
+  crf1=as.factor(crf1),
+  transt1 = case_when(
+      transt == "Chronic care Rehab/Intermediate Care/Spinal Cord" ~ "FALSE",
+      transt == "Transferred from outside hospital (NICU, PICU, Inpatient on General floor, Adult" ~"FALSE",
+      transt == "other" ~ "FALSE",
+      transt == "Admitted from home/clinic/doctor's office" ~ "TRUE",
+      transt == "Admitted through ER, including outside ER with direct hospital admission" ~ "TRUE"),
+  transt1=as.factor(transt1))
+```
   select(age_years, bmi, weight, sex1, crf1, race1, asa_level, ventilat1, asthma1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
 ```
+## Graph of pre-operative factors and homedischarge (see if we need it at team meeting)
+
+ NEED TO DISCUSS WITH THE GROUP
+## Heatplot for different co-morbidity and association with the outcome
+     
 1. Overall quick descriptives for the data entered in the model
 ```{r, message=FALSE, warning=FALSE}
 summary(model_data)
