@@ -83,9 +83,16 @@ level_13= Fusion of 13 or more vertebral segments (binary var.)
 
 ## Selection of predictors to include in the model
 
-* From the series of variables  weight, height, and BMI (highly related) we selected based on literature review weight to be included in the model.
+* From the series of variables  weight, height, and BMI (all three highly related) we selected based on literature review bmi to be included in the model.
 * From our initial data visualization, ethnicity has large number of patients who self-identified as "Other", it is unclear how to use other to create preditions thus the ethnicity variable was eliminated. 
-* We examined the var "Transt" which indicates where the patient was before coming to surgery. The variable was turned in to binary "transt1", as the sample size does not allow for multiple categorical variables.  NEED TO TRANSFORM TO BINARY???
+* We examined the var "Transt" which indicates where the patient was before coming to surgery. The variable was turned in to binary "transt1", as the sample size does not allow for multiple categorical variables.  This below does not run.
+transt1 = case_when(
+      transt == "Chronic care;Rehab;Intermediate Care;Spinal Cord" ~ "FALSE",
+      transt == "Transferred from outside hospital (NICU, PICU, Inpatient on General floor, Adult" ~"FALSE",
+      transt == "other" ~ "FALSE",
+      transt == "Admitted from home;clinic;doctor's office" ~ "TRUE",
+      transt == "Admitted through ER, including outside ER with direct hospital admission" ~ "TRUE"),
+  transt1=as.factor(transt1),
 * From the literature we know that cognitive ability can be a confound to the severity of Neuromusculoskeletal disorder and does not relate to medical complications. Thus, we eliminated from  the model "impcogstat".
 * Also recoded cardiac risk factor (crf) as a binary variable, again because of the small sample size.NEED TO TRANSFORM TO BINARY???
 * We will examine a total of 13 (will be 15 after we fix the two above) variables for the full model. Before entering the full model we will use cross tabs to see if there are any  cells with 0 (n=0).
@@ -138,8 +145,14 @@ hemodisorder1=case_when(
  home_discharge1=case_when(
    home_discharge=="TRUE"~"1",
    home_discharge=="FALSE"~"0"),
-home_discharge1=as.factor(home_discharge1))%>% 
-  select(age_years, weight, sex1, race1, asa_level, ventilat1, asthma1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
+home_discharge1=as.factor(home_discharge1), 
+  crf1 = case_when(
+      crf == "Major cardiac risk factors" ~ "FALSE",
+      crf == "Severe cardiac risk factors" ~"FALSE",
+      crf == "Minor cardiac risk factors" ~ "TRUE",
+      crf == "No cardiac risk factors" ~ "TRUE"), 
+  crf1=as.factor(crf1))%>%
+  select(age_years, bmi, weight, sex1, crf1, race1, asa_level, ventilat1, asthma1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
 ```
 1. Overall quick descriptives for the data entered in the model
 ```{r, message=FALSE, warning=FALSE}
@@ -189,21 +202,42 @@ xtabs(~ home_discharge1+ hemodisorder1, data = model_data)
 ```
 
 ```{r, message=FALSE, warning=FALSE}
+xtabs(~ home_discharge1+ crf1, data = model_data)
+```
+
+```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ level_13, data = model_data)
 ```
 Logistic regression (Full Model with )
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1+ asa_level + ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ bmi+ sex1+ asa_level + crf1+ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
 ## Reduced model based on the cross tabs above (cells with counts <=5)
 
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1+ asthma1 + hxcld1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ bmi+ sex1+ asthma1 +crf1+ hxcld1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
 ## Reduced based on literature and visualization 
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ bmi+hemodisorder1+crf1, data = model_data, family = "binomial")
 summary(mylogit)
 ```
+## The latest reduced model fits better 
+1. We see the deviance residuals, which are a measure of model fit. This part of output shows the distribution of the deviance residuals for individual cases used in the model. Compared to the other two models this fits better. AIC is also better (lower). Age and the pre-existance of a hemodisorder are significant.
+For every 1 year increase in age the log odds of homedischarge (versus discharge to other healthcare facilities) decreases by 0.176.
+Having a pre-existing hematologic disorder changes the log odds of homedischarge by -1.386.
+## Confidence intervals for the log odds coeficients (log-likelihood function)
+```{r, message=FALSE, warning=FALSE}
+confint(mylogit)
+```
+## Confidence intervals using the standard errors
+```{r, message=FALSE, warning=FALSE}
+confint.default(mylogit)
+```
+### Exponantiate to odds ratios and 95% CI
+```{r, message=FALSE, warning=FALSE}
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+```
+##For one year  increase in age, the odds of being discharged home (versus being discharged to another health care facility) increase by 0.83. The odds of being discharged at home if you have a hemodisorder are 0.24.

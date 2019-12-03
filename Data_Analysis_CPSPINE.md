@@ -9,14 +9,14 @@ library(tidyverse)
     ## Warning in as.POSIXlt.POSIXct(Sys.time()): unknown timezone 'zone/tz/2019c.
     ## 1.0/zoneinfo/America/New_York'
 
-    ## ── Attaching packages ──────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 
     ## ✔ ggplot2 3.2.1     ✔ purrr   0.3.3
     ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
     ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
     ## ✔ readr   1.1.1     ✔ forcats 0.4.0
 
-    ## ── Conflicts ─────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ───────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
@@ -98,8 +98,8 @@ of 13 or more vertebral segments (binary var.)
 
 ## Selection of predictors to include in the model
 
-  - From the series of variables weight, height, and BMI (highly
-    related) we selected based on literature review weight to be
+  - From the series of variables weight, height, and BMI (all three
+    highly related) we selected based on literature review bmi to be
     included in the model.
   - From our initial data visualization, ethnicity has large number of
     patients who self-identified as “Other”, it is unclear how to use
@@ -108,7 +108,13 @@ of 13 or more vertebral segments (binary var.)
   - We examined the var “Transt” which indicates where the patient was
     before coming to surgery. The variable was turned in to binary
     “transt1”, as the sample size does not allow for multiple
-    categorical variables. NEED TO TRANSFORM TO BINARY???
+    categorical variables. This below does not run. transt1 =
+    case\_when( transt == “Chronic care;Rehab;Intermediate Care;Spinal
+    Cord” ~ “FALSE”, transt == “Transferred from outside hospital (NICU,
+    PICU, Inpatient on General floor, Adult” ~“FALSE”, transt == “other”
+    ~ “FALSE”, transt == “Admitted from home;clinic;doctor’s office” ~
+    “TRUE”, transt == “Admitted through ER, including outside ER with
+    direct hospital admission” ~ “TRUE”), transt1=as.factor(transt1),
   - From the literature we know that cognitive ability can be a confound
     to the severity of Neuromusculoskeletal disorder and does not relate
     to medical complications. Thus, we eliminated from the model
@@ -170,8 +176,14 @@ hemodisorder1=case_when(
  home_discharge1=case_when(
    home_discharge=="TRUE"~"1",
    home_discharge=="FALSE"~"0"),
-home_discharge1=as.factor(home_discharge1))%>% 
-  select(age_years, weight, sex1, race1, asa_level, ventilat1, asthma1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
+home_discharge1=as.factor(home_discharge1), 
+  crf1 = case_when(
+      crf == "Major cardiac risk factors" ~ "FALSE",
+      crf == "Severe cardiac risk factors" ~"FALSE",
+      crf == "Minor cardiac risk factors" ~ "TRUE",
+      crf == "No cardiac risk factors" ~ "TRUE"), 
+  crf1=as.factor(crf1))%>%
+  select(age_years, bmi, weight, sex1, crf1, race1, asa_level, ventilat1, asthma1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
 ```
 
 1.  Overall quick descriptives for the data entered in the
@@ -183,29 +195,29 @@ home_discharge1=as.factor(home_discharge1))%>%
 summary(model_data)
 ```
 
-    ##    age_years         weight       sex1     race1     asa_level ventilat1
-    ##  Min.   : 3.34   Min.   :  2.00   0:398   2   : 24   0: 77     0:739    
-    ##  1st Qu.:11.28   1st Qu.: 26.80   1:424   3   :203   1:745     1: 83    
-    ##  Median :13.28   Median : 32.00           4   :  4                      
-    ##  Mean   :13.13   Mean   : 33.58           5   :501                      
-    ##  3rd Qu.:15.18   3rd Qu.: 38.90           NA's: 90                      
-    ##  Max.   :17.99   Max.   :107.00                                         
-    ##                  NA's   :5                                              
-    ##  asthma1 hxcld1  oxygen_sup1 seizure1 nutr_support1 hemodisorder1
-    ##  0:631   0:670   0:761       0:302    0:406         0:770        
-    ##  1:191   1:152   1: 61       1:520    1:416         1: 52        
-    ##                                                                  
-    ##                                                                  
-    ##                                                                  
-    ##                                                                  
-    ##                                                                  
-    ##   level_13   home_discharge1
-    ##  FALSE:196   0: 53          
-    ##  TRUE :626   1:769          
-    ##                             
-    ##                             
-    ##                             
-    ##                             
+    ##    age_years          bmi              weight       sex1       crf1    
+    ##  Min.   : 3.34   Min.   :  1.577   Min.   :  2.00   0:398   FALSE: 53  
+    ##  1st Qu.:11.28   1st Qu.: 15.321   1st Qu.: 26.80   1:424   TRUE :769  
+    ##  Median :13.28   Median : 17.540   Median : 32.00                      
+    ##  Mean   :13.13   Mean   : 18.907   Mean   : 33.58                      
+    ##  3rd Qu.:15.18   3rd Qu.: 20.114   3rd Qu.: 38.90                      
+    ##  Max.   :17.99   Max.   :238.140   Max.   :107.00                      
+    ##                  NA's   :125       NA's   :5                           
+    ##   race1     asa_level ventilat1 asthma1 hxcld1  oxygen_sup1 seizure1
+    ##  2   : 24   0: 77     0:739     0:631   0:670   0:761       0:302   
+    ##  3   :203   1:745     1: 83     1:191   1:152   1: 61       1:520   
+    ##  4   :  4                                                           
+    ##  5   :501                                                           
+    ##  NA's: 90                                                           
+    ##                                                                     
+    ##                                                                     
+    ##  nutr_support1 hemodisorder1  level_13   home_discharge1
+    ##  0:406         0:770         FALSE:196   0: 53          
+    ##  1:416         1: 52         TRUE :626   1:769          
+    ##                                                         
+    ##                                                         
+    ##                                                         
+    ##                                                         
     ## 
 
 2.  Two-way contingency tables of categorical outcome and predictors we
@@ -322,6 +334,15 @@ xtabs(~ home_discharge1+ hemodisorder1, data = model_data)
     ##               1 726  43
 
 ``` r
+xtabs(~ home_discharge1+ crf1, data = model_data)
+```
+
+    ##                crf1
+    ## home_discharge1 FALSE TRUE
+    ##               0     6   47
+    ##               1    47  722
+
+``` r
 xtabs(~ home_discharge1+ level_13, data = model_data)
 ```
 
@@ -334,119 +355,179 @@ Logistic regression (Full Model with
 )
 
 ``` r
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1+ asa_level + ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ bmi+ sex1+ asa_level + crf1+ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
 
     ## 
     ## Call:
-    ## glm(formula = home_discharge1 ~ age_years + weight + sex1 + asa_level + 
-    ##     ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + 
-    ##     hemodisorder1 + level_13, family = "binomial", data = model_data)
+    ## glm(formula = home_discharge1 ~ age_years + bmi + sex1 + asa_level + 
+    ##     crf1 + ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + 
+    ##     nutr_support1 + hemodisorder1 + level_13, family = "binomial", 
+    ##     data = model_data)
     ## 
     ## Deviance Residuals: 
     ##     Min       1Q   Median       3Q      Max  
-    ## -2.9596   0.2399   0.3179   0.4057   0.9273  
+    ## -2.9830   0.2156   0.3038   0.3830   1.0877  
     ## 
     ## Coefficients:
     ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)     6.979271   1.290679   5.407 6.39e-08 ***
-    ## age_years      -0.201586   0.066163  -3.047  0.00231 ** 
-    ## weight         -0.002831   0.014993  -0.189  0.85024    
-    ## sex11          -0.192483   0.297001  -0.648  0.51693    
-    ## asa_level1     -1.124188   0.759970  -1.479  0.13907    
-    ## ventilat11      0.010239   0.546168   0.019  0.98504    
-    ## asthma11       -0.381148   0.360418  -1.058  0.29028    
-    ## hxcld11         0.307587   0.421640   0.730  0.46569    
-    ## oxygen_sup11    0.629524   0.690686   0.911  0.36206    
-    ## seizure11       0.094874   0.321577   0.295  0.76797    
-    ## nutr_support11 -0.280662   0.322784  -0.870  0.38457    
-    ## hemodisorder11 -1.371087   0.423334  -3.239  0.00120 ** 
-    ## level_13TRUE   -0.088250   0.379154  -0.233  0.81595    
+    ## (Intercept)     6.930979   1.584134   4.375 1.21e-05 ***
+    ## age_years      -0.202325   0.071623  -2.825  0.00473 ** 
+    ## bmi            -0.006945   0.008353  -0.831  0.40574    
+    ## sex11           0.102504   0.335219   0.306  0.75977    
+    ## asa_level1     -1.633812   1.036850  -1.576  0.11508    
+    ## crf1TRUE        0.827978   0.534693   1.549  0.12150    
+    ## ventilat11     -0.122534   0.571107  -0.215  0.83011    
+    ## asthma11       -0.332963   0.395866  -0.841  0.40029    
+    ## hxcld11         0.227989   0.459929   0.496  0.62010    
+    ## oxygen_sup11    0.334522   0.714361   0.468  0.63958    
+    ## seizure11      -0.246564   0.376836  -0.654  0.51292    
+    ## nutr_support11 -0.181642   0.364448  -0.498  0.61820    
+    ## hemodisorder11 -1.452341   0.470054  -3.090  0.00200 ** 
+    ## level_13TRUE   -0.135322   0.431252  -0.314  0.75368    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## (Dispersion parameter for binomial family taken to be 1)
     ## 
-    ##     Null deviance: 392.43  on 816  degrees of freedom
-    ## Residual deviance: 367.36  on 804  degrees of freedom
-    ##   (5 observations deleted due to missingness)
-    ## AIC: 393.36
+    ##     Null deviance: 317.38  on 696  degrees of freedom
+    ## Residual deviance: 291.13  on 683  degrees of freedom
+    ##   (125 observations deleted due to missingness)
+    ## AIC: 319.13
     ## 
-    ## Number of Fisher Scoring iterations: 6
+    ## Number of Fisher Scoring iterations: 7
 
 ## Reduced model based on the cross tabs above (cells with counts \<=5)
 
 ``` r
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1+ asthma1 + hxcld1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ bmi+ sex1+ asthma1 +crf1+ hxcld1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
 
     ## 
     ## Call:
-    ## glm(formula = home_discharge1 ~ age_years + weight + sex1 + asthma1 + 
-    ##     hxcld1 + seizure1 + nutr_support1 + hemodisorder1 + level_13, 
-    ##     family = "binomial", data = model_data)
+    ## glm(formula = home_discharge1 ~ age_years + bmi + sex1 + asthma1 + 
+    ##     crf1 + hxcld1 + seizure1 + nutr_support1 + hemodisorder1 + 
+    ##     level_13, family = "binomial", data = model_data)
     ## 
     ## Deviance Residuals: 
     ##     Min       1Q   Median       3Q      Max  
-    ## -2.9906   0.2590   0.3271   0.3999   1.0449  
+    ## -3.0267   0.2377   0.3054   0.3776   1.1328  
     ## 
     ## Coefficients:
     ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)     5.858628   1.046478   5.598 2.16e-08 ***
-    ## age_years      -0.202908   0.066089  -3.070  0.00214 ** 
-    ## weight          0.001892   0.015124   0.125  0.90043    
-    ## sex11          -0.182685   0.295263  -0.619  0.53610    
-    ## asthma11       -0.315003   0.354610  -0.888  0.37437    
-    ## hxcld11         0.325254   0.412888   0.788  0.43084    
-    ## seizure11       0.065148   0.322877   0.202  0.84009    
-    ## nutr_support11 -0.324272   0.321275  -1.009  0.31282    
-    ## hemodisorder11 -1.294916   0.417304  -3.103  0.00192 ** 
-    ## level_13TRUE   -0.124372   0.378657  -0.328  0.74257    
+    ## (Intercept)     5.445680   1.232242   4.419  9.9e-06 ***
+    ## age_years      -0.199569   0.071495  -2.791  0.00525 ** 
+    ## bmi            -0.007553   0.008407  -0.898  0.36897    
+    ## sex11           0.109507   0.333130   0.329  0.74237    
+    ## asthma11       -0.320699   0.389312  -0.824  0.41008    
+    ## crf1TRUE        0.874653   0.526767   1.660  0.09683 .  
+    ## hxcld11         0.187830   0.450690   0.417  0.67685    
+    ## seizure11      -0.286869   0.378315  -0.758  0.44828    
+    ## nutr_support11 -0.287408   0.361923  -0.794  0.42713    
+    ## hemodisorder11 -1.399894   0.456154  -3.069  0.00215 ** 
+    ## level_13TRUE   -0.181044   0.428993  -0.422  0.67301    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## (Dispersion parameter for binomial family taken to be 1)
     ## 
-    ##     Null deviance: 392.43  on 816  degrees of freedom
-    ## Residual deviance: 371.17  on 807  degrees of freedom
-    ##   (5 observations deleted due to missingness)
-    ## AIC: 391.17
+    ##     Null deviance: 317.38  on 696  degrees of freedom
+    ## Residual deviance: 295.39  on 686  degrees of freedom
+    ##   (125 observations deleted due to missingness)
+    ## AIC: 317.39
     ## 
     ## Number of Fisher Scoring iterations: 6
 
 ## Reduced based on literature and visualization
 
 ``` r
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ bmi+hemodisorder1+crf1, data = model_data, family = "binomial")
 summary(mylogit)
 ```
 
     ## 
     ## Call:
-    ## glm(formula = home_discharge1 ~ age_years + weight + hemodisorder1 + 
-    ##     level_13, family = "binomial", data = model_data)
+    ## glm(formula = home_discharge1 ~ age_years + bmi + hemodisorder1 + 
+    ##     crf1, family = "binomial", data = model_data)
     ## 
     ## Deviance Residuals: 
     ##     Min       1Q   Median       3Q      Max  
-    ## -2.8073   0.2676   0.3271   0.3970   0.8858  
+    ## -2.8167   0.2518   0.3108   0.3746   0.8550  
     ## 
     ## Coefficients:
     ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)     5.329727   0.907011   5.876  4.2e-09 ***
-    ## age_years      -0.186300   0.064062  -2.908  0.00364 ** 
-    ## weight          0.004736   0.015080   0.314  0.75347    
-    ## hemodisorder11 -1.288066   0.405631  -3.175  0.00150 ** 
-    ## level_13TRUE   -0.177042   0.370621  -0.478  0.63287    
+    ## (Intercept)     4.705918   1.047790   4.491 7.08e-06 ***
+    ## age_years      -0.176132   0.065762  -2.678  0.00740 ** 
+    ## bmi            -0.006196   0.008439  -0.734  0.46284    
+    ## hemodisorder11 -1.386472   0.438696  -3.160  0.00158 ** 
+    ## crf1TRUE        0.787231   0.517140   1.522  0.12794    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## (Dispersion parameter for binomial family taken to be 1)
     ## 
-    ##     Null deviance: 392.43  on 816  degrees of freedom
-    ## Residual deviance: 373.82  on 812  degrees of freedom
-    ##   (5 observations deleted due to missingness)
-    ## AIC: 383.82
+    ##     Null deviance: 317.38  on 696  degrees of freedom
+    ## Residual deviance: 298.91  on 692  degrees of freedom
+    ##   (125 observations deleted due to missingness)
+    ## AIC: 308.91
     ## 
     ## Number of Fisher Scoring iterations: 6
+
+## The latest reduced model fits better
+
+1.  We see the deviance residuals, which are a measure of model fit.
+    This part of output shows the distribution of the deviance residuals
+    for individual cases used in the model. Compared to the other two
+    models this fits better. AIC is also better (lower). Age and the
+    pre-existance of a hemodisorder are significant. For every 1 year
+    increase in age the log odds of homedischarge (versus discharge to
+    other healthcare facilities) decreases by 0.176. Having a
+    pre-existing hematologic disorder changes the log odds of
+    homedischarge by -1.386. \#\# Confidence intervals for the log odds
+    coeficients (log-likelihood function)
+
+<!-- end list -->
+
+``` r
+confint(mylogit)
+```
+
+    ##                      2.5 %      97.5 %
+    ## (Intercept)     2.75381487  6.87287993
+    ## age_years      -0.30978435 -0.05135965
+    ## bmi            -0.02097187  0.01706992
+    ## hemodisorder11 -2.20942569 -0.46891732
+    ## crf1TRUE       -0.34215027  1.72504503
+
+## Confidence intervals using the standard errors
+
+``` r
+confint.default(mylogit)
+```
+
+    ##                      2.5 %      97.5 %
+    ## (Intercept)     2.65228702  6.75954903
+    ## age_years      -0.30502372 -0.04724066
+    ## bmi            -0.02273708  0.01034501
+    ## hemodisorder11 -2.24629965 -0.52664468
+    ## crf1TRUE       -0.22634407  1.80080707
+
+### Exponantiate to odds ratios and 95% CI
+
+``` r
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+```
+
+    ##                         OR      2.5 %      97.5 %
+    ## (Intercept)    110.5997718 15.7024204 965.7257913
+    ## age_years        0.8385071  0.7336051   0.9499370
+    ## bmi              0.9938231  0.9792465   1.0172164
+    ## hemodisorder11   0.2499556  0.1097637   0.6256793
+    ## crf1TRUE         2.1973048  0.7102415   5.6127738
+
+\#\#For one year increase in age, the odds of being discharged home
+(versus being discharged to another health care facility) increase by
+0.83. The odds of being discharged at home if you have a hemodisorder
+are 0.24.
