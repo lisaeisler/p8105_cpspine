@@ -43,11 +43,15 @@ In all studies, there appear to be pre-operative risk factors associated with in
 
 <h1 id="characterize">Data Characterization</h1>
 
-```{r setup, message=FALSE, warning=FALSE}
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(haven)
 library(plotly)
 library(viridis)
+library(data.table)
+library(formattable)
+library(readxl)
+
 # Formatting plot output
 knitr::opts_chunk$set(
   out.width = "90%"
@@ -65,7 +69,20 @@ In its raw form, the data has `r nrow(nsqipspineCP_1617)` rows and `r ncol(nsqip
 
 A copy of the data could not be shared due to licensing agreements.
 
-This is a focused analysis, interested only in a handful of important postoperative outcomes as they relate to the recovery of CP patients undergoing spinal fusion. These variables are defined here: (FROM JERRI)
+This is a focused analysis, interested only in a handful of important postoperative outcomes as they relate to the recovery of CP patients undergoing spinal fusion. These variables are defined here:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+variables = read_excel("data/CPSpineVariables.xlsx")
+
+variables[is.na(variables)] <- ""
+
+formattable(variables, 
+            align =c("l","l","l"), 
+            list(`Data Category` = formatter(
+              "span", 
+              style = ~ style(color = "grey",font.weight = "bold"))))
+
+```
 
 Therefore we will tidy the data to that end.
 
@@ -75,7 +92,7 @@ Therefore we will tidy the data to that end.
 
 To start the cleaning, we replaced the value "-99" with NA to indicate non-zero missingness. We converted age in days to age in years and height and weight to the metric system. We then created a BMI estimate based on height and weight. American Society of Anesthesiologists Physical Status Classification (ASA Class) was converted from a character variable to a factor variable. Extent of surgical fusion (inflection point 13 levels) was used to create a dichotomous variable, level_13. A dichotomous variable indicating whether the patient returned home or was discharged to a facility was created and null values deleted. A subset of the data was selected for analysis.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 cp_spine_tidy = nsqipspineCP_1617 %>%
   mutate_if(is.numeric, ~replace(., . == -99, NA)) %>%
   mutate(
