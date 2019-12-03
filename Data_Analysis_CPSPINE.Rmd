@@ -219,6 +219,7 @@ summary(mylogit)
 mylogit <- glm(home_discharge1 ~ age_years+ bmi+ sex1+ asthma1 +crf1+ hxcld1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
+
 ## Reduced based on literature and visualization 
 ```{r, message=FALSE, warning=FALSE}
 mylogit <- glm(home_discharge1 ~ age_years+ bmi+hemodisorder1+crf1, data = model_data, family = "binomial")
@@ -241,3 +242,15 @@ confint.default(mylogit)
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
 ```
 ##For one year  increase in age, the odds of being discharged home (versus being discharged to another health care facility) increase by 0.83. The odds of being discharged at home if you have a hemodisorder are 0.24.
+## We want to see how well our model fits. The output produced by summary(mylogit) has parameters that can be used to check the model fit.The null and deviance residuals and the AIC. One measure of model fit is the significance of the overall model. This test asks whether the model with predictors fits significantly better than a model with just an intercept (i.e., a null model). 
+Finally, the p-value can be obtained using:
+
+```{r, message=FALSE, warning=FALSE}
+with(mylogit, pchisq(null.deviance - deviance, df.null - df.residual, lower.tail = FALSE))
+```
+The chi-square has a p-value of less than 0.001 tells us that our model as a whole fits significantly better than an empty model. 
+
+###This is sometimes called a likelihood ratio test (the deviance residual is -2*log likelihood). To see the model’s log likelihood, we type:
+```{r, message=FALSE, warning=FALSE}
+logLik(mylogit)
+```
