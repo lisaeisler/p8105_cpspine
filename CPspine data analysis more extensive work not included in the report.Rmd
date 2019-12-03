@@ -1,8 +1,9 @@
 ---
-title: "Data_Analysis_CPSPINE"
-Author: "Katherine Dimitropoulou"
+title: "CPspine data analysis more extensive work not included in the report"
+author: "Katherine Dimitropoulou"
 output: github_document
 ---
+
 
 ```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,7 +19,9 @@ library(viridis)
 nsqipspineCP_1617 = read_csv("./nsqipspineCP_1617.csv")
 ```
 
-## Initial Data Cleaning & Selection of a subset of data to examine the purpose of the study (From Jerri's file we can ommit in the report once we double check that it is included on Jerri's side)
+note: Where variable type and length disagree, we get error message. Coercion occurs and outcome is all numeric/all character for any given column with longest length.
+
+## Initial Data Cleaning & Selection of a subset of data to examine the purpose of the study.
 
 ```{r, message=FALSE, warning=FALSE}
 cp_spine_tidy = nsqipspineCP_1617 %>%
@@ -57,9 +60,43 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
 ```
 ## Analysis and models
 Our goal is to develop a model,in which we can use important pre-operative factors to predict the patient's discharge at home. 
-## Selection of predictors to include in the initial model
-Data processing, elimination of missing data, and data selection for the model. We observe that all cp patients in the dataset were patient who came from home. 
+The initial set of pre-operative variables is:
+pufyear_x:ped_spn_post_neurodeftype, 
+age_years= Age in Years (continues var.)
+sex=Gender (binary var.)
+height= Height (inch) (continues var.)
+weight= Weight(lbs) (continues var.)
+bmi= BMI (continues var.)
+ethnicity_hispanic=Ethnicity (Categorical var.)
+race= Race (Categorical var.)
+asa_status= ASA Classification (Categorical var.)
+transt= Transfer Status (Admitted from Home or ER, or Rehab Care facility, etc.) (Categorical var.)
+ventilat= Ventilator Dependence (binary var.)
+asthma=Asthma (binary var.)
+hxcld= Bronchopulmonary Dysplasia/Chronic Lung Disease (binary var.)
+oxygen_sup= Oxygen Support (binary var.)
+crf= Cardiac Risk Factors (Categorical var.)
+impcogstat= Developmental Delay/Impaired Cognitive Status (binary var.)
+seizure= Seizure Disorder (binary var.)
+nutr_support=Nutritional Support  (binary var.)
+hemodisorder=Hematologic Disorder (binary var.)
+level_13= Fusion of 13 or more vertebral segments (binary var.)
 
+## Selection of predictors to include in the model
+
+* From the series of variables  weight, height, and BMI (all three highly related) we selected based on literature review bmi to be included in the model.
+* From our initial data visualization, ethnicity has large number of patients who self-identified as "Other", it is unclear how to use other to create preditions thus the ethnicity variable was eliminated. 
+* We examined the var "Transt" which indicates where the patient was before coming to surgery. The variable was turned in to binary "transt1", as the sample size does not allow for multiple categorical variables.  This below does not run.
+transt1 = case_when(
+      transt == "Chronic care, Rehab,Intermediate Care;Spinal Cord" ~ "FALSE",
+      transt == "Transferred from outside hospital (NICU, PICU, Inpatient on General floor, Adult" ~"FALSE",
+      transt == "other" ~ "FALSE",
+      transt == "Admitted from home;clinic;doctor's office" ~ "TRUE",
+      transt == "Admitted through ER, including outside ER with direct hospital admission" ~ "TRUE"),
+  transt1=as.factor(transt1),
+* From the literature we know that cognitive ability can be a confound to the severity of Neuromusculoskeletal disorder and does not relate to medical complications. Thus, we eliminated from  the model "impcogstat".
+* Also recoded cardiac risk factor (crf) as a binary variable, again because of the small sample size.NEED TO TRANSFORM TO BINARY???
+* We will examine a total of 13 (will be 15 after we fix the two above) variables for the full model. Before entering the full model we will use cross tabs to see if there are any  cells with 0 (n=0).
 ```{r, message=FALSE, warning=FALSE}
 model_data = cp_spine_tidy %>% 
   mutate(
@@ -126,56 +163,14 @@ home_discharge1=as.factor(home_discharge1),
   select(age_years, bmi, weight, sex1, transt1, crf1, race1, asa_level, ventilat1, asthma1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) %>%
   na.omit(model_data)
 ```
-Overall quick descriptives for the data entered in the model suggest that all cp patients came from home.
+Total graph of all predictors to the outcome
+     
+1. Overall quick descriptives for the data entered in the model
 ```{r, message=FALSE, warning=FALSE}
 summary(model_data)
 ```
-NEED TO ENTER HERE A GRAPH OF THE ALL PREDICTORS WITH THE OUTCOME
-
-Initially there were 19 pre-operative variables that could predict the main outcome `home_discharge` To select the variables for our model we used findings from our literature review and results from preliminary analysis (crosstabs). From groups of variables that were highly correlated with each other, we  selected one variable that was supported from the literature. After the cross tabs exploratory analysis, we eliminated variables that presented with 0 data in at least one of the cells. We combined multilevel variables to binary variables (i.e. crf) due to small sample size. We finally eliminated variables such as `ethnicity` because there was a large number of patients who self-identified as "Other" and it is unclear how to use "Other" to create preditions. Therefore, our full regression model consisted of 12 variable. 
-## Logistic Regression Models
-Full Model
+2. Two-way contingency tables of categorical outcome and predictors we want
+## to make sure there are no cells with n=0
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ bmi+ sex1 + crf1+ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
-summary(mylogit)
+xtabs(~ home_discharge1+ sex1, data = model_data)
 ```
-We further examined ways to improve our model fit, and eliminated variables that had cell counts 
- <=5) and those that had no support from the literature to be predictors for this outcome. The reduced model included 4 predictors.
- 
-Reduced Model
-```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ bmi+hemodisorder1+crf1, data = model_data, family = "binomial")
-summary(mylogit)
-```
-Futhermore, we tested which of the two models (Full or Reduced) fits better. We see the deviance residuals, which are a measure of model fit. This part of output shows the distribution of the deviance residuals for individual cases used in the model. Compared to the other two models this fits better. AIC is also better (lower). Age variable is significant at a=.05,  the pre-existance of a hematologic disorder variable is significant at a=.001, and cardiac risk factors variable is significant at a=0.1. we will take variables who are significant at a=0.05 level.
-In addition, we wanted to see if our model fits the data significantly better than a model with just the intercept (a null model). We use the null and deviance residuals and the AIC. 
-Chi-Square test
-with(mylogit, null.deviance - deviance)
-
-with(mylogit, df.null - df.residual)
-
-```{r, message=FALSE, warning=FALSE}
-with(mylogit, pchisq(null.deviance - deviance, df.null - df.residual, lower.tail = FALSE))
-```
-The chi-square provides a p-value=0.001307 (p< 0.001), thus, our model as a whole fits significantly better than the null model. 
-We can use the likelihood ratio test (-2*log likelihood) to see the model’s log likelihood:
-```{r, message=FALSE, warning=FALSE}
-logLik(mylogit)
-```
-For every 1 year increase in age the log odds of homedischarge (versus discharge to other healthcare facilities) decreases by 0.176.
-Having a pre-existing hematologic disorder changes the log odds of homedischarge by -1.386.
-## Confidence intervals for the log odds coeficients (log-likelihood function)
-```{r, message=FALSE, warning=FALSE}
-confint(mylogit)
-```
-## Confidence intervals using the standard errors
-```{r, message=FALSE, warning=FALSE}
-confint.default(mylogit)
-```
-### Exponantiate to odds ratios and 95% CI
-```{r, message=FALSE, warning=FALSE}
-exp(cbind(OR = coef(mylogit), confint(mylogit)))
-```
-##For one year  increase in age, the odds of being discharged home (versus being discharged to another health care facility) increase by 0.83. The odds of being discharged at home if you have a hemodisorder are 0.24.
-##  
-
