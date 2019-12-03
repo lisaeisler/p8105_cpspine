@@ -148,16 +148,22 @@ mylogit <- glm(home_discharge1 ~ age_years+ bmi+hemodisorder1+crf1, data = model
 summary(mylogit)
 ```
 Futhermore, we tested which of the two models (Full or Reduced) fits better. We see the deviance residuals, which are a measure of model fit. This part of output shows the distribution of the deviance residuals for individual cases used in the model. Compared to the other two models this fits better. AIC is also better (lower). Age variable is significant at a=.05,  the pre-existance of a hematologic disorder variable is significant at a=.001, and cardiac risk factors variable is significant at a=0.1. we will take variables who are significant at a=0.05 level.
-In addition, we wanted to see if our model fits the data significantly better than a model with just the intercept (a null model). We use the null and deviance residuals and the AIC. 
-Chi-Square test
+In addition, we wanted to see if our model fits the data significantly better than a model with just the intercept (a null model). 
+
+We use the null and deviance residuals 
+```{r, message=FALSE, warning=FALSE}
 with(mylogit, null.deviance - deviance)
-
+```
+with Df
+```{r, message=FALSE, warning=FALSE}
 with(mylogit, df.null - df.residual)
-
+```
+We  compute the Chi-Square test
 ```{r, message=FALSE, warning=FALSE}
 with(mylogit, pchisq(null.deviance - deviance, df.null - df.residual, lower.tail = FALSE))
 ```
 The chi-square provides a p-value=0.001307 (p< 0.001), thus, our model as a whole fits significantly better than the null model. 
+
 We can use the likelihood ratio test (-2*log likelihood) to see the model’s log likelihood:
 ```{r, message=FALSE, warning=FALSE}
 logLik(mylogit)
