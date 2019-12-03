@@ -94,28 +94,6 @@ Data Characterization
 
 </h1>
 
-``` r
-library(tidyverse)
-library(haven)
-library(plotly)
-library(viridis)
-library(data.table)
-library(formattable)
-library(readxl)
-
-# Formatting plot output
-knitr::opts_chunk$set(
-  out.width = "90%"
-  )
-# Set the plot design
-theme_set(theme_classic() + 
-            theme(legend.position = "bottom", 
-                  legend.key.size = unit(1.5, "line"),
-                  plot.title = element_text(hjust = 0.5)))
-# Raw data
-nsqipspineCP_1617 = read_csv("./data/nsqipspineCP_1617.csv")
-```
-
 In its raw form, the data has 830 rows and 384 columns. Each row
 corresponds to a single spinal fusion and 384 demographic, medical,
 surgical, and pre/intra/postoperative characteristics and events, which
@@ -1670,39 +1648,3 @@ character variable to a factor variable. Extent of surgical fusion
 level\_13. A dichotomous variable indicating whether the patient
 returned home or was discharged to a facility was created and null
 values deleted. A subset of the data was selected for analysis.
-
-``` r
-cp_spine_tidy = nsqipspineCP_1617 %>%
-  mutate_if(is.numeric, ~replace(., . == -99, NA)) %>%
-  mutate(
-    age_years = age_days/365.25,
-    height = height*2.54,
-    weight = weight/2.2) %>%
-  mutate(
-    bmi = weight/((height/100)*(height/100)),
-    asa_status = case_when(
-      asaclas == "ASA 1 - No Disturb" ~ "1",
-      asaclas == "ASA 2 - Mild Disturb" ~ "2",
-      asaclas == "ASA 3 - Severe Disturb" ~ "3",
-      asaclas == "ASA 4 - Life Threat" ~ "4",
-      asaclas == "None assigned" ~ "NA"),
-    home_discharge = case_when(
-      dischdest == "Expired" ~ "FALSE",
-      dischdest == "Facility Which was Home" ~ "TRUE",
-      dischdest == "Home" ~ "TRUE",
-      dischdest == "Rehab" ~ "FALSE",
-      dischdest == "Separate Acute Care" ~ "FALSE",
-      dischdest == "Skilled Care, Not Home" ~ "FALSE",
-      dischdest == "Unknown" ~ "NA",
-      dischdest == "Unskilled Facility Not Home" ~ "FALSE",
-      dischdest == "NULL" ~ "NA"),
-    level_13 = case_when(
-      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 2 TO 3 VERTEBRAL SEGMENTS" ~ "FALSE",
-      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 4 TO 7 VERTEBRAL SEGMENTS" ~ "FALSE",
-      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 8 OR MORE VERTEBRAL SEGMENTS" ~ "FALSE",
-      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; UP TO 6 VERTEBRAL SEGMENTS" ~ "FALSE",
-      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 7 TO 12 VERTEBRAL SEGMENTS" ~ "FALSE",
-      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 13 OR MORE VERTEBRAL SEGMENTS" ~ "TRUE")) %>%
-  filter(home_discharge != "NA") %>% 
-  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, level_13, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
-```
