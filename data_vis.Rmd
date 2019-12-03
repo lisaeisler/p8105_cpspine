@@ -11,6 +11,7 @@ library(tidyverse)
 library(haven)
 library(plotly)
 library(viridis)
+library(tableone)
 ```
 
 ## Data import 
@@ -316,3 +317,28 @@ data_diagnosis = cp_spine_tidy %>%
   janitor::clean_names()
 ```
  
+ 
+ Create clean data frame for table 1, c
+```{r}
+cp_spine_table1 = cp_spine_tidy %>%
+mutate(
+    sex = factor(sex, ordered = TRUE, levels = c("Female", "Male")),
+    race = factor(race, ordered = FALSE, levels = c("American Indian or Alaska Native", "Asian", "Black or African American", "Native Hawaiian or Other Pacific Islander", "Unknown/Not Reported", "White")),
+    admit_from = factor(transt, ordered = TRUE, levels = c("Admitted from home/clinic/doctor's office", "Admitted through ER including outside ER with direct hospital admission", "Chronic care/Rehab/Intermediate Care/Spinal Cord", "Transferred from outside hospital (NICU, PICU, Inpatient on General floor, Adult)", "Other")),
+    ASAstatus = factor(asa_status, ordered = TRUE, levels = c("1", "2", "3", "4", "5")),
+    ventilator_dependence = factor(ventilat, ordered = TRUE, levels = c("Yes", "No")),
+    asthma = factor(asthma, ordered = TRUE, levels = c("Yes", "No")),
+    home_oxygen = factor(oxygen_sup, ordered = TRUE, levels = c("Yes", "No")),
+    cognitive_impairment = factor(impcogstat, ordered = TRUE, levels = c("Yes", "No")),
+    seizure_disorder = factor(seizure, ordered = TRUE, levels = c("Yes", "No")),
+    nutritional_support = factor(nutr_support, ordered = TRUE, levels = c("Yes", "No")),
+    hematologic_disorder = factor(hemodisorder, ordered = TRUE, levels = c("Yes", "No"))
+)
+
+myVars <- c("age_years", "sex", "height", "weight", "ASAstatus", "admit_from", "ventilator_dependence", "asthma", "home_oxygen", "cognitive_impairment", "seizure_disorder", "nutritional_support", "hematologic_disorder")
+catVars <- c("sex", "ASAstatus", "admit_from", "ventilator_dependence", "asthma", "home_oxygen", "cognitive_impairment", "seizure_disorder", "nutritional_support", "hematologic_disorder")
+
+tab3 <- CreateTableOne(vars = myVars, data = cp_spine_table1, factorVars = catVars)
+
+print(tab3)
+```
