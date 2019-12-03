@@ -48,6 +48,10 @@ library(tidyverse)
 library(haven)
 library(plotly)
 library(viridis)
+library(data.table)
+library(formattable)
+library(readxl)
+
 # Formatting plot output
 knitr::opts_chunk$set(
   out.width = "90%"
@@ -65,7 +69,19 @@ In its raw form, the data has `r nrow(nsqipspineCP_1617)` rows and `r ncol(nsqip
 
 A copy of the data could not be shared due to licensing agreements.
 
-This is a focused analysis, interested only in a handful of important postoperative outcomes as they relate to the recovery of CP patients undergoing spinal fusion. These variables are defined here: (FROM JERRI)
+This is a focused analysis, interested only in a handful of important postoperative outcomes as they relate to the recovery of CP patients undergoing spinal fusion. These variables are defined here:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+variables = read_excel("data/CPSpineVariables.xlsx")
+
+variables[is.na(variables)] <- ""
+
+formattable(variables, 
+            align =c("l","l","l"), 
+            list(`Data Category` = formatter(
+              "span", 
+              style = ~ style(color = "grey",font.weight = "bold"))))
+```
 
 Therefore we will tidy the data to that end.
 
