@@ -14,12 +14,6 @@ library(viridis)
 library(tableone)
 library(formattable)
 library(data.table)
-
-customGreen0 = "#DeF7E9"
-
-customGreen = "#71CA97"
-
-customRed = "#ff7f7f"
 ```
 
 ## Data import 
@@ -349,4 +343,24 @@ catVars <- c("sex", "ASAstatus", "admit_from", "ventilator_dependence", "asthma"
 tab3 <- CreateTableOne(vars = myVars, data = cp_spine_table1, factorVars = catVars)
 
 print(tab3)
+```
+
+Next we set out to determine the frequency of adverse outcomes in our data set.
+
+```{r, message=FALSE, warning=FALSE}
+cp_spine_table2 = cp_spine_tidy %>%
+mutate(
+    urinary_tract_infection = factor(urninfec, ordered = TRUE, levels = c("No Complication","Urinary Tract Infection")),
+    wound_infection = factor(wndinfd, ordered = FALSE, levels = c("No Complication", "Deep Incisional SSI")),
+    home_discharge = factor(home_discharge, ordered = TRUE, levels = c("TRUE", "FALSE")),
+    reoperation = factor(reoperation, levels = c("No", "Yes")),
+    death_in_30_days = factor(death30yn, ordered = TRUE, levels = c("No", "Yes"))
+)
+myVars <- c("urinary_tract_infection", "wound_infection", "home_discharge", "reoperation", "death_in_30_days")
+catVars <- c("urinary_tract_infection", "wound_infection", "home_discharge", "reoperation", "death_in_30_days")
+tab4 <- CreateTableOne(vars = myVars, data = cp_spine_table2, factorVars = catVars)
+```
+
+```{r, message=FALSE, warning=FALSE}
+tab4df = print(tab4)
 ```
