@@ -120,14 +120,7 @@ home_discharge1=as.factor(home_discharge1),
       crf == "Severe cardiac risk factors" ~"TRUE",
       crf == "Minor cardiac risk factors" ~ "FALSE",
       crf == "No cardiac risk factors" ~ "FALSE"), 
-  crf1=as.factor(crf1),
-  transt1 = case_when(
-      transt == "Chronic care Rehab/Intermediate Care/Spinal Cord" ~ "FALSE",
-      transt == "Transferred from outside hospital (NICU, PICU, Inpatient on General floor, Adult" ~"FALSE",
-      transt == "other" ~ "FALSE",
-      transt == "Admitted from home/clinic/doctor's office" ~ "TRUE",
-      transt == "Admitted through ER, including outside ER with direct hospital admission" ~ "TRUE"),
-  transt1=as.factor(transt1))%>%
+  crf1=as.factor(crf1))%>%
   select(age_years, bmi, weight, height, sex1, transt1, crf1, race1, asa_level, ventilat1, asthma1,impcogstat1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
 ```
 Overall quick descriptives for the data entered in the model suggest that all cp patients came from home.
@@ -135,7 +128,7 @@ Overall quick descriptives for the data entered in the model suggest that all cp
 summary(model_data)
 ```
 
-Initially there were 19 pre-operative variables that could predict the main outcome `home_discharge` To select the variables for our model we used findings from our literature review and results from preliminary analysis (crosstabs). From groups of variables that were highly correlated with each other, we  selected one variable that was supported from the literature. For example, we used weight instead of height and bmi, as height is a non reliable measure for individuals with CP and has a lot of missing values in the dataset. After the cross tabs exploratory analysis (see CPspine extensive), we eliminated variables that presented with 0 data in at least one of the cells. We combined multilevel variables to binary variables (i.e. crf) due to small sample size. We finally eliminated variables such as `ethnicity` because there was a large number of patients who self-identified as "Other" and it is unclear how to use "Other" to create preditions. Therefore, our full regression model consisted of 14 variables. 
+Initially there were 18 pre-operative variables that could predict the main outcome `home_discharge`. To select the variables for our model we used findings from our literature review and results from preliminary analysis (crosstabs). From groups of variables that were highly correlated with each other, we  selected one variable that was supported from the literature. For example, we used weight instead of height and bmi, as height is a non reliable measure for individuals with CP and has a lot of missing values in the dataset. After the cross tabs exploratory analysis (see CPspine extensive), we eliminated variables that presented with 0 data in at least one of the cells. We combined multilevel variables to binary variables (i.e. crf) due to small sample size. We finally eliminated variables such as `ethnicity` because there was a large number of patients who self-identified as "Other" and it is unclear how to use "Other" to create preditions. Therefore, our full regression model consisted of 14 variables. 
 ##Logistic Regression Models
 Full Model
 ```{r, message=FALSE, warning=FALSE}
@@ -177,7 +170,7 @@ Two predictors in the model came up significant at a=.05.
 1. For every 1 year increase in age the log odds of homedischarge (versus discharge to other healthcare facilities) decreases by 0.19.
 2. Having a pre-existing hematologic disorder decreases the log odds of being discharged to home by 1.309.
 
-Although asthma, cardiac risk factors, nutritional support and level of fusion did not appear as significant in the model, we provide them here as they are clinically significant and connected to post-surgery complications and outcomes in the literature.
+Although asthma, and level of fusion did not appear as significant in the model, we provide them here as they are clinically significant and connected to post-surgery complications and outcomes in the literature.
 3. Having asthma  decreases the log odds of being discharged to home by 0.372
 4. Having a level of fusion more than 13 decreases the log odds of being discharged at home by 0.179 
 Confidence intervals for the log odds coeficients (log-likelihood function)
