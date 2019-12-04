@@ -30,12 +30,12 @@ Introduction
 
 </h1>
 
-## Project Motivation
+## Project Motivation and Literature Review
 
 Children with cerebral palsy (CP) often present with a curvature of the
 spine, or scoliosis, as a result of abnormal muscle tone and postural
 weakness.<sup>[1](https://www.flintrehab.com/2019/cerebral-palsy-scoliosis/)</sup>
-The clinical characteristics of this scoliosis in CP patients involve a
+The clinical characteristics of scoliosis in CP patients involve a
 deformity of the lumbar and thoracic spine often accompanied by pelvic
 torque and postural problems, which leads to loss of function and pain.
 Severe spinal curves (\>50 degrees) are difficult to control with
@@ -45,14 +45,14 @@ functional mobility, and improve quality of life.
 
 The surgical treatment of individuals with CP who present with severe
 neuromuscular scoliosis has been associated with peri- and postoperative
-complication rates as high as 75%. Mohamad et al. (2007) carried out a
+complication rates as high as 75%. Mohamad et al. (2007) carried out a
 retrospective record review of 175 patients with neuromuscular
 scoliosis, with 73.7 % of them being patients with
 CP.<sup>[2](https://www.ncbi.nlm.nih.gov/pubmed/17513958/)</sup> The
 peri- and post-operative complications rate was 33.1 % (58/175).
-Patients experienced a combination of pulmonary complications (~20%),
+Patients experienced a combination of pulmonary complications (\~20%),
 infections (8%), neurological (4%), and cardiovascular problems (4%). In
-another retrospective study, Tsirikos et al. (2008) reported data in 287
+another retrospective study, Tsirikos et al. (2008) reported data in 287
 patients with CP who underwent spinal
 fusion.<sup>[3](https://www.ncbi.nlm.nih.gov/pubmed/18449049/)</sup>
 They reported major complications including 3 perioperative deaths, an
@@ -70,23 +70,25 @@ also reported some pre-operative indicators such as the larger
 preoperative kyphosis, lower body mass index (BMI) as risk factors for
 complications.
 
-In all studies, there appear to be pre-operative risk factors associated
-with increased complications, but no study has comprehensively examined
-these factors. In addition, no study has examined non-routine discharge,
-with discharge to home (or home facility) assumed to be the routine as
-well as preferred outcome from a rehabilitation standpoint. We believe
-that patients and their families benefit from reasonable expectations
-about the chance of a decline in function, higher-level care needs or
-even death in the initial 30-day postoperative period. A model
-predicting non-routine discharge (defined as discharge to a higher level
-of care including postoperative death).
+In all studies, there appear to be pre- and/or peri-operative risk
+factors associated with increased complications, but no study has
+comprehensively examined these factors. In addition, no study has
+examined non-routine discharge, with discharge to home (or home
+facility) assumed to be the routine as well as preferred outcome from a
+rehabilitation standpoint. We believe that patients and their families
+benefit from reasonable expectations about the chance of a decline in
+function, higher-level care needs or even death in the initial 30-day
+postoperative period. A model predicting non-routine discharge (defined
+as discharge to a higher level of care including postoperative death)
+may aid in patient selection and family decision making. We consider the
+outcome of non-home discharge in particular to be an indicator that
+spinal fusion surgery has failed to improve quality of life or
+funcitonal status, at least in the short term and perhaps permanently.
 
 Our team comprises anesthesiologists and rehabilitation therapists who
-can combine expertise to develop behavioral and biological intervention
-protocols, and to make decisions regarding the proper timing and
-optimization for surgery.
-
-## Project Roadmap
+often care for patients with CP. We can combine expertise to develop
+behavioral and biological intervention protocols, and to make decisions
+regarding the proper timing and optimization for surgery.
 
 <h1 id="characterize">
 
@@ -1648,3 +1650,169 @@ character variable to a factor variable. Extent of surgical fusion
 level\_13. A dichotomous variable indicating whether the patient
 returned home or was discharged to a facility was created and null
 values deleted. A subset of the data was selected for analysis.
+
+``` r
+cp_spine_tidy = nsqipspineCP_1617 %>%
+  mutate_if(is.numeric, ~replace(., . == -99, NA)) %>%
+  mutate(
+    age_years = age_days/365.25,
+    height = height*2.54,
+    weight = weight/2.2) %>%
+  mutate(
+    bmi = weight/((height/100)*(height/100)),
+    asa_status = case_when(
+      asaclas == "ASA 1 - No Disturb" ~ "1",
+      asaclas == "ASA 2 - Mild Disturb" ~ "2",
+      asaclas == "ASA 3 - Severe Disturb" ~ "3",
+      asaclas == "ASA 4 - Life Threat" ~ "4",
+      asaclas == "None assigned" ~ "NA"),
+    home_discharge = case_when(
+      dischdest == "Expired" ~ "FALSE",
+      dischdest == "Facility Which was Home" ~ "TRUE",
+      dischdest == "Home" ~ "TRUE",
+      dischdest == "Rehab" ~ "FALSE",
+      dischdest == "Separate Acute Care" ~ "FALSE",
+      dischdest == "Skilled Care, Not Home" ~ "FALSE",
+      dischdest == "Unknown" ~ "NA",
+      dischdest == "Unskilled Facility Not Home" ~ "FALSE",
+      dischdest == "NULL" ~ "NA"),
+    level_13 = case_when(
+      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 2 TO 3 VERTEBRAL SEGMENTS" ~ "FALSE",
+      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 4 TO 7 VERTEBRAL SEGMENTS" ~ "FALSE",
+      prncptx == "ARTHRODESIS, ANTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 8 OR MORE VERTEBRAL SEGMENTS" ~ "FALSE",
+      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; UP TO 6 VERTEBRAL SEGMENTS" ~ "FALSE",
+      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 7 TO 12 VERTEBRAL SEGMENTS" ~ "FALSE",
+      prncptx == "ARTHRODESIS, POSTERIOR, FOR SPINAL DEFORMITY, WITH OR WITHOUT CAST; 13 OR MORE VERTEBRAL SEGMENTS" ~ "TRUE")) %>%
+  filter(home_discharge != "NA") %>% 
+  select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, level_13, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
+```
+
+After data cleaning, we had a dataset with 822 observations and 57
+variables total.
+
+<h1 id="explore">
+
+Data Exploration
+
+</h1>
+
+## Descriptive Analyses
+
+To give a sense of the overall demographic and medical characteristics
+of our cohort, continuous and categorical variables considered to be
+predictors or covariates impacting adverse outcomes are included in the
+following table, as mean(SD) or n(%).
+
+``` r
+cp_spine_table1 = cp_spine_tidy %>%
+mutate(
+    sex = factor(sex, ordered = TRUE, levels = c("Female", "Male")),
+    race = factor(race, ordered = FALSE, levels = c("American Indian or Alaska Native", "Asian", "Black or African American", "Native Hawaiian or Other Pacific Islander", "Unknown/Not Reported", "White")),
+    admit_from = factor(transt, ordered = TRUE, levels = c("Admitted from home/clinic/doctor's office", "Admitted through ER including outside ER with direct hospital admission", "Chronic care/Rehab/Intermediate Care/Spinal Cord", "Transferred from outside hospital (NICU, PICU, Inpatient on General floor, Adult)", "Other")),
+    ASAstatus = factor(asa_status, ordered = TRUE, levels = c("1", "2", "3", "4", "5")),
+    ventilator_dependence = factor(ventilat, ordered = TRUE, levels = c("No", "Yes")),
+    asthma = factor(asthma, ordered = TRUE, levels = c("No", "Yes")),
+    home_oxygen = factor(oxygen_sup, ordered = TRUE, levels = c("No", "Yes")),
+    cognitive_impairment = factor(impcogstat, ordered = TRUE, levels = c("No", "Yes")),
+    seizure_disorder = factor(seizure, ordered = TRUE, levels = c("No", "Yes")),
+    nutritional_support = factor(nutr_support, ordered = TRUE, levels = c("No", "Yes")),
+    hematologic_disorder = factor(hemodisorder, ordered = TRUE, levels = c("No", "Yes"))
+)
+myVars <- c("age_years", "sex", "height", "weight", "ASAstatus", "admit_from", "ventilator_dependence", "asthma", "home_oxygen", "cognitive_impairment", "seizure_disorder", "nutritional_support", "hematologic_disorder")
+catVars <- c("sex", "ASAstatus", "admit_from", "ventilator_dependence", "asthma", "home_oxygen", "cognitive_impairment", "seizure_disorder", "nutritional_support", "hematologic_disorder")
+tab3 <- CreateTableOne(vars = myVars, data = cp_spine_table1, factorVars = catVars)
+```
+
+``` r
+tab3df = print(tab3)
+```
+
+    ##                                                      
+    ##                                                       Overall       
+    ##   n                                                      822        
+    ##   age_years (mean (SD))                                13.13 (2.78) 
+    ##   sex = Male (%)                                         398 (48.4) 
+    ##   height (mean (SD))                                  134.84 (17.56)
+    ##   weight (mean (SD))                                   33.58 (10.96)
+    ##   ASAstatus (%)                                                     
+    ##      1                                                     2 ( 0.2) 
+    ##      2                                                    75 ( 9.1) 
+    ##      3                                                   672 (81.9) 
+    ##      4                                                    72 ( 8.8) 
+    ##   admit_from (%)                                                    
+    ##      Admitted from home/clinic/doctor's office           789 (97.0) 
+    ##      Chronic care/Rehab/Intermediate Care/Spinal Cord      9 ( 1.1) 
+    ##      Other                                                15 ( 1.8) 
+    ##   ventilator_dependence = Yes (%)                         83 (10.1) 
+    ##   asthma = Yes (%)                                       191 (23.2) 
+    ##   home_oxygen = Yes (%)                                   61 ( 7.4) 
+    ##   cognitive_impairment = Yes (%)                         749 (91.1) 
+    ##   seizure_disorder = Yes (%)                             520 (63.3) 
+    ##   nutritional_support = Yes (%)                          416 (50.6) 
+    ##   hematologic_disorder = Yes (%)                          52 ( 6.3)
+
+From this table, we can appreciate that this is not a healthy
+population. The majority of our patients were American Society of
+Anesthesiologists (ASA) Physical Status 3-4, indicating that their
+anesthesiologist felt that they suffered severe systemic disease, with
+substantive functional limitations. 97% of patients were being cared for
+at home preoperatively, and 10% were ventilator dependent. 91% were
+cognitively impaired, with \~50% requiring nutritional support.
+
+Next, to give a sense of the frequency of adverse events in our overall
+cohort, categorical outcome variables are included in the following
+table, as n(%).
+
+``` r
+cp_spine_table2 = cp_spine_tidy %>%
+mutate(
+    urinary_tract_infection = factor(urninfec, ordered = TRUE, levels = c("No Complication","Urinary Tract Infection")),
+    wound_infection = factor(wndinfd, ordered = FALSE, levels = c("No Complication", "Deep Incisional SSI")),
+    home_discharge = factor(home_discharge, ordered = TRUE, levels = c("TRUE", "FALSE")),
+    reoperation = factor(reoperation, levels = c("No", "Yes")),
+    death_in_30_days = factor(death30yn, ordered = TRUE, levels = c("No", "Yes"))
+)
+myVars <- c("urinary_tract_infection", "wound_infection", "home_discharge", "reoperation", "death_in_30_days")
+catVars <- c("urinary_tract_infection", "wound_infection", "home_discharge", "reoperation", "death_in_30_days")
+tab4 <- CreateTableOne(vars = myVars, data = cp_spine_table2, factorVars = catVars)
+```
+
+``` r
+tab4df = print(tab4)
+```
+
+    ##                                                        
+    ##                                                         Overall   
+    ##   n                                                     822       
+    ##   urinary_tract_infection = Urinary Tract Infection (%)  19 (2.3) 
+    ##   wound_infection = Deep Incisional SSI (%)              17 (2.1) 
+    ##   home_discharge = FALSE (%)                             53 (6.4) 
+    ##   reoperation = Yes (%)                                  50 (6.1) 
+    ##   death_in_30_days = Yes (%)                              6 (0.7)
+
+The most common major adverse outcome was non-home discharge, impacting
+6.4% (n=53) of patients.
+
+## Exploring Relationships
+
+<h1 id="model">
+
+Modeling Discharge Status
+
+</h1>
+
+## Full Model
+
+## Reduced Model
+
+## Comparison of Residuals, Goodness of Fit
+
+<h1 id="discuss">
+
+Discussion
+
+</h1>
+
+## Major Findings
+
+## Future Directions
