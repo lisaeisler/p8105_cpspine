@@ -12,6 +12,14 @@ library(haven)
 library(plotly)
 library(viridis)
 library(tableone)
+library(formattable)
+library(data.table)
+
+customGreen0 = "#DeF7E9"
+
+customGreen = "#71CA97"
+
+customRed = "#ff7f7f"
 ```
 
 ## Data import 
@@ -318,7 +326,7 @@ data_diagnosis = cp_spine_tidy %>%
 ```
  
  
- Create clean data frame for table 1, c
+ Create clean data frame for table 1, create table
 ```{r}
 cp_spine_table1 = cp_spine_tidy %>%
 mutate(
@@ -326,13 +334,13 @@ mutate(
     race = factor(race, ordered = FALSE, levels = c("American Indian or Alaska Native", "Asian", "Black or African American", "Native Hawaiian or Other Pacific Islander", "Unknown/Not Reported", "White")),
     admit_from = factor(transt, ordered = TRUE, levels = c("Admitted from home/clinic/doctor's office", "Admitted through ER including outside ER with direct hospital admission", "Chronic care/Rehab/Intermediate Care/Spinal Cord", "Transferred from outside hospital (NICU, PICU, Inpatient on General floor, Adult)", "Other")),
     ASAstatus = factor(asa_status, ordered = TRUE, levels = c("1", "2", "3", "4", "5")),
-    ventilator_dependence = factor(ventilat, ordered = TRUE, levels = c("Yes", "No")),
-    asthma = factor(asthma, ordered = TRUE, levels = c("Yes", "No")),
-    home_oxygen = factor(oxygen_sup, ordered = TRUE, levels = c("Yes", "No")),
-    cognitive_impairment = factor(impcogstat, ordered = TRUE, levels = c("Yes", "No")),
-    seizure_disorder = factor(seizure, ordered = TRUE, levels = c("Yes", "No")),
-    nutritional_support = factor(nutr_support, ordered = TRUE, levels = c("Yes", "No")),
-    hematologic_disorder = factor(hemodisorder, ordered = TRUE, levels = c("Yes", "No"))
+    ventilator_dependence = factor(ventilat, ordered = TRUE, levels = c("No", "Yes")),
+    asthma = factor(asthma, ordered = TRUE, levels = c("No", "Yes")),
+    home_oxygen = factor(oxygen_sup, ordered = TRUE, levels = c("No", "Yes")),
+    cognitive_impairment = factor(impcogstat, ordered = TRUE, levels = c("No", "Yes")),
+    seizure_disorder = factor(seizure, ordered = TRUE, levels = c("No", "Yes")),
+    nutritional_support = factor(nutr_support, ordered = TRUE, levels = c("No", "Yes")),
+    hematologic_disorder = factor(hemodisorder, ordered = TRUE, levels = c("No", "Yes"))
 )
 
 myVars <- c("age_years", "sex", "height", "weight", "ASAstatus", "admit_from", "ventilator_dependence", "asthma", "home_oxygen", "cognitive_impairment", "seizure_disorder", "nutritional_support", "hematologic_disorder")
