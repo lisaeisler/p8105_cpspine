@@ -106,16 +106,20 @@ hemodisorder1=case_when(
     hemodisorder=="No"~"0",
     hemodisorder=="Yes"~"1"),
   hemodisorder1=as.factor(hemodisorder1),
+impcogstat1=case_when(
+    impcogstat=="No"~"0",
+    impcogstat=="Yes"~"1"),
+  impcogstat1=as.factor(impcogstat),
  level_13=as.factor(level_13),
  home_discharge1=case_when(
    home_discharge=="TRUE"~"1",
    home_discharge=="FALSE"~"0"),
 home_discharge1=as.factor(home_discharge1), 
   crf1 = case_when(
-      crf == "Major cardiac risk factors" ~ "FALSE",
-      crf == "Severe cardiac risk factors" ~"FALSE",
-      crf == "Minor cardiac risk factors" ~ "TRUE",
-      crf == "No cardiac risk factors" ~ "TRUE"), 
+      crf == "Major cardiac risk factors" ~ "TRUE",
+      crf == "Severe cardiac risk factors" ~"TRUE",
+      crf == "Minor cardiac risk factors" ~ "FALSE",
+      crf == "No cardiac risk factors" ~ "FALSE"), 
   crf1=as.factor(crf1),
   transt1 = case_when(
       transt == "Chronic care Rehab/Intermediate Care/Spinal Cord" ~ "FALSE",
@@ -124,30 +128,30 @@ home_discharge1=as.factor(home_discharge1),
       transt == "Admitted from home/clinic/doctor's office" ~ "TRUE",
       transt == "Admitted through ER, including outside ER with direct hospital admission" ~ "TRUE"),
   transt1=as.factor(transt1))%>%
-  select(age_years, bmi, weight, sex1, transt1, crf1, race1, asa_level, ventilat1, asthma1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
+  select(age_years, bmi, weight, height, sex1, transt1, crf1, race1, asa_level, ventilat1, asthma1,impcogstat1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
 ```
 Overall quick descriptives for the data entered in the model suggest that all cp patients came from home.
 ```{r, message=FALSE, warning=FALSE}
 summary(model_data)
 ```
-##NEED TO ENTER HERE A GRAPH OF THE ALL PREDICTORS WITH THE OUTCOME
 
-Initially there were 19 pre-operative variables that could predict the main outcome `home_discharge` To select the variables for our model we used findings from our literature review and results from preliminary analysis (crosstabs). From groups of variables that were highly correlated with each other, we  selected one variable that was supported from the literature. For example, we used weight instead of height and bmi, as height is a non reliable measure for individuals with CP and has a lot of missing values in the dataset. After the cross tabs exploratory analysis (see CPspine extensive), we eliminated variables that presented with 0 data in at least one of the cells. We combined multilevel variables to binary variables (i.e. crf) due to small sample size. We finally eliminated variables such as `ethnicity` because there was a large number of patients who self-identified as "Other" and it is unclear how to use "Other" to create preditions. Therefore, our full regression model consisted of 12 variable. 
+Initially there were 19 pre-operative variables that could predict the main outcome `home_discharge` To select the variables for our model we used findings from our literature review and results from preliminary analysis (crosstabs). From groups of variables that were highly correlated with each other, we  selected one variable that was supported from the literature. For example, we used weight instead of height and bmi, as height is a non reliable measure for individuals with CP and has a lot of missing values in the dataset. After the cross tabs exploratory analysis (see CPspine extensive), we eliminated variables that presented with 0 data in at least one of the cells. We combined multilevel variables to binary variables (i.e. crf) due to small sample size. We finally eliminated variables such as `ethnicity` because there was a large number of patients who self-identified as "Other" and it is unclear how to use "Other" to create preditions. Therefore, our full regression model consisted of 14 variables. 
 ##Logistic Regression Models
 Full Model
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1 + crf1+ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1 + crf1+asa_level+ventilat1 +asthma1 +impcogstat1+ hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
 We further examined ways to improve our model fit, and eliminated variables that had cell counts 
- <=5) and those that had no support from the literature to be predictors for this outcome. The reduced model included 3 predictors.
+ <=5) and those that had no support from the literature to be predictors for this outcome. The reduced model included 6 predictors.
  
-Reduced Model
+
+Reduced model has 6 indicators
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ weight+hemodisorder1, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ weight+ asthma1+ hxcld1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
-We tested which of the two models (Full or Reduced) fits better. We see the deviance residuals, which are a measure of model fit. This part of output shows the distribution of the deviance residuals for individual cases used in the model. Compared to the other two models this fits better. AIC is also better (lower). Age variable is significant at a=.01,  the pre-existance of a hematologic disorder variable is significant at a=.01.
+We tested which of the two models (Full or Reduced) fits better. We see the deviance residuals, which are a measure of model fit. This part of output shows the distribution of the deviance residuals for individual cases used in the model. Compared to the other two models this fits better. AIC is also better (lower). Age variable is significant at a=.05,  the pre-existance of a hematologic disorder variable is significant at a=.05.
 In addition, we wanted to see if our model fits the data significantly better than a model with just the intercept (a null model). 
 
 We use the null and deviance residuals 
@@ -162,15 +166,20 @@ We  compute the Chi-Square test
 ```{r, message=FALSE, warning=FALSE}
 with(mylogit, pchisq(null.deviance - deviance, df.null - df.residual, lower.tail = FALSE))
 ```
-The chi-square provides a p-value=0.000367 (p< 0.001), thus, our model as a whole fits significantly better than the null model. 
+The chi-square provides a p-value=0.0028 (p< 0.05), thus, our reduced model as a whole fits significantly better than the null model. 
 
 We can use the likelihood ratio test (-2*log likelihood) to see the model’s log likelihood:
 ```{r, message=FALSE, warning=FALSE}
 logLik(mylogit)
 ```
-##Preliminary intrepretation
+##Preliminary intrepretation for the betas 
+Two predictors in the model came up significant at a=.05.
 1. For every 1 year increase in age the log odds of homedischarge (versus discharge to other healthcare facilities) decreases by 0.19.
-2. Having a pre-existing hematologic disorder decreases the log odds of being discharged to home by 1.275.
+2. Having a pre-existing hematologic disorder decreases the log odds of being discharged to home by 1.309.
+
+Although asthma, cardiac risk factors, nutritional support and level of fusion did not appear as significant in the model, we provide them here as they are clinically significant and connected to post-surgery complications and outcomes in the literature.
+3. Having asthma  decreases the log odds of being discharged to home by 0.372
+4. Having a level of fusion more than 13 decreases the log odds of being discharged at home by 0.179 
 Confidence intervals for the log odds coeficients (log-likelihood function)
 ```{r, message=FALSE, warning=FALSE}
 confint(mylogit)
@@ -184,6 +193,9 @@ Exponantiate to odds ratios and Confidence intervals
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
 ```
 ##Data interpretation
-For every one year  increase in age, the odds of being discharged home (versus being discharged to another health care facility) increase by 0.83. This means that for every year increase in age the odds of being release to a health care facility (not home) increase by (1/.83=1.2) by 20%.
-The odds of being discharged at home if you have a hemodisorder are 0.279.This means that if the patient has a a pre-existing hematologic disorder the odds of being discharged to a health care facility are (1/.279=3.58) 3.58 the odds of being discharged to home.
+For every one year  increase in age, the odds of being discharged home (versus being discharged to another health care facility) increase by 0.82. This means that for every year increase in age the odds of being release to a health care facility (not home) increase by (1/.82=1.22) by 22%.
+The odds of being discharged at home if you have a hemodisorder are 0.27.This means that if the patient has a pre-existing hematologic disorder the odds of being discharged to a health care facility are (1/.27=3.7) 3.7 the odds of being discharged to home. 
+Important pre-operative indicators such as asthma,and level of fusion did not appear as significant in the model, we provide them here for consideration for future research. 
+If a patient has asthma the odds of being discharged to home are 0.69.That is the odds of being released to a health care facility (not home) increase by (1/.82=1.44) by 44%. If a patient has a fusion level 13 and above the odds of being discharged home are 0.83.That is the odds of being released to a health care facility (not home) increase by (1/.82=1.44) by 20%.
+
 
