@@ -33,7 +33,7 @@ library(viridis)
 nsqipspineCP_1617 = read_csv("./nsqipspineCP_1617.csv")
 ```
 
-## Initial Data Cleaning & Selection of a subset of data to examine the purpose of the study (From Jerri’s file we can ommit in the report once we double check that it is included on Jerri’s side)
+## Initial Data Cleaning & Selection of a subset of data to examine the purpose of the study
 
 ``` r
 cp_spine_tidy = nsqipspineCP_1617 %>%

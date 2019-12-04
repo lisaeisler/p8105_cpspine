@@ -33,7 +33,7 @@ library(viridis)
 nsqipspineCP_1617 = read_csv("./nsqipspineCP_1617.csv")
 ```
 
-## Initial Data Cleaning & Selection of a subset of data to examine the purpose of the study (From Jerri’s file we can ommit in the report once we double check that it is included on Jerri’s side)
+## Initial Data Cleaning & Selection of a subset of data to examine the purpose of the study
 
 ``` r
 cp_spine_tidy = nsqipspineCP_1617 %>%
@@ -281,15 +281,15 @@ summary(mylogit)
     ## 
     ## Number of Fisher Scoring iterations: 6
 
-Futhermore, we tested which of the two models (Full or Reduced) fits
-better. We see the deviance residuals, which are a measure of model fit.
-This part of output shows the distribution of the deviance residuals for
-individual cases used in the model. Compared to the other two models
-this fits better. AIC is also better (lower). Age variable is
-significant at a=.01, the pre-existance of a hematologic disorder
-variable is significant at a=.01. In addition, we wanted to see if our
-model fits the data significantly better than a model with just the
-intercept (a null model).
+We tested which of the two models (Full or Reduced) fits better. We see
+the deviance residuals, which are a measure of model fit. This part of
+output shows the distribution of the deviance residuals for individual
+cases used in the model. Compared to the other two models this fits
+better. AIC is also better (lower). Age variable is significant at
+a=.01, the pre-existance of a hematologic disorder variable is
+significant at a=.01. In addition, we wanted to see if our model fits
+the data significantly better than a model with just the intercept (a
+null model).
 
 We use the null and deviance residuals
 
