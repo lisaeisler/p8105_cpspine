@@ -55,9 +55,10 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
   filter(home_discharge != "NA") %>% 
   select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, level_13, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
 ```
-## Analysis and models
+##Analysis and models
+
 Our goal is to develop a model,in which we can use important pre-operative factors to predict the patient's discharge at home. 
-## Selection of predictors to include in the initial model
+Selection of predictors to include in the initial model
 Data processing, elimination of missing data, and data selection for the model. We observe that all cp patients in the dataset were patient who came from home. 
 
 ```{r, message=FALSE, warning=FALSE}
@@ -129,10 +130,10 @@ Overall quick descriptives for the data entered in the model suggest that all cp
 ```{r, message=FALSE, warning=FALSE}
 summary(model_data)
 ```
-NEED TO ENTER HERE A GRAPH OF THE ALL PREDICTORS WITH THE OUTCOME
+##NEED TO ENTER HERE A GRAPH OF THE ALL PREDICTORS WITH THE OUTCOME
 
 Initially there were 19 pre-operative variables that could predict the main outcome `home_discharge` To select the variables for our model we used findings from our literature review and results from preliminary analysis (crosstabs). From groups of variables that were highly correlated with each other, we  selected one variable that was supported from the literature. For example, we used weight instead of height and bmi, as height is a non reliable measure for individuals with CP and has a lot of missing values in the dataset. After the cross tabs exploratory analysis (see CPspine extensive), we eliminated variables that presented with 0 data in at least one of the cells. We combined multilevel variables to binary variables (i.e. crf) due to small sample size. We finally eliminated variables such as `ethnicity` because there was a large number of patients who self-identified as "Other" and it is unclear how to use "Other" to create preditions. Therefore, our full regression model consisted of 12 variable. 
-## Logistic Regression Models
+##Logistic Regression Models
 Full Model
 ```{r, message=FALSE, warning=FALSE}
 mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1 + crf1+ventilat1 + asthma1 + hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
@@ -167,18 +168,18 @@ We can use the likelihood ratio test (-2*log likelihood) to see the model’s lo
 ```{r, message=FALSE, warning=FALSE}
 logLik(mylogit)
 ```
-Preliminary intrepretation
+##Preliminary intrepretation
 1. For every 1 year increase in age the log odds of homedischarge (versus discharge to other healthcare facilities) decreases by 0.19.
 2. Having a pre-existing hematologic disorder decreases the log odds of being discharged to home by 1.275.
-## Confidence intervals for the log odds coeficients (log-likelihood function)
+Confidence intervals for the log odds coeficients (log-likelihood function)
 ```{r, message=FALSE, warning=FALSE}
 confint(mylogit)
 ```
-## Confidence intervals using the standard errors
+Confidence intervals using the standard errors
 ```{r, message=FALSE, warning=FALSE}
 confint.default(mylogit)
 ```
-### Exponantiate to odds ratios and Confidence intervals
+Exponantiate to odds ratios and Confidence intervals
 ```{r, message=FALSE, warning=FALSE}
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
 ```

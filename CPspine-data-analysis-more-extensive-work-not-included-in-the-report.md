@@ -71,14 +71,13 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
   select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, level_13, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
 ```
 
-\#\#Analysis and models
-
-Our goal is to develop a model,in which we can use important
-pre-operative factors to predict the patient’s discharge at home.
-Selection of predictors to include in the initial model Data processing,
-elimination of missing data, and data selection for the model. We
-observe that all cp patients in the dataset were patient who came from
-home.
+NOTE: THE ABOVE SECTION IS THE SAME AS IN DATA VISUALIZATION NOT NEEDED
+IN THE FINAL REPORT \#\# Analysis and models Our goal is to develop a
+model,in which we can use important pre-operative factors to predict the
+patient’s discharge at home. \#\# Selection of predictors to include in
+the initial model Data processing, elimination of missing data, and data
+selection for the model. We observe that all cp patients in the dataset
+were patient who came from home.
 
 ``` r
 model_data = cp_spine_tidy %>% 
@@ -179,7 +178,145 @@ summary(model_data)
     ##                                                                  
     ## 
 
-\#\#NEED TO ENTER HERE A GRAPH OF THE ALL PREDICTORS WITH THE OUTCOME
+``` r
+xtabs(~ home_discharge1+ transt1, data = model_data)
+```
+
+    ##                transt1
+    ## home_discharge1 TRUE
+    ##               0   51
+    ##               1  747
+
+2.  Two-way contingency tables of categorical outcome and predictors we
+    want \#\# to make sure there are no cells with n=0
+
+<!-- end list -->
+
+``` r
+xtabs(~ home_discharge1+ sex1, data = model_data)
+```
+
+    ##                sex1
+    ## home_discharge1   0   1
+    ##               0  25  28
+    ##               1 373 396
+
+``` r
+xtabs(~ home_discharge1+ race1, data = model_data)
+```
+
+    ##                race1
+    ## home_discharge1   2   3   4   5
+    ##               0   3  15   0  25
+    ##               1  21 188   4 476
+
+\#Race cross tab with home\_dicharge1 has 1 cell with 0 data point and
+two more cells with 15 and bellow data points. Thus race will be
+excluded from the model.
+
+``` r
+xtabs(~ home_discharge1+ asa_level, data = model_data)
+```
+
+    ##                asa_level
+    ## home_discharge1   0   1
+    ##               0   2  51
+    ##               1  75 694
+
+  - Asa\_level has a cell with 2 data points we need to take out from
+    the model (unstable model.
+
+<!-- end list -->
+
+``` r
+xtabs(~ home_discharge1+ ventilat1, data = model_data)
+```
+
+    ##                ventilat1
+    ## home_discharge1   0   1
+    ##               0  48   5
+    ##               1 691  78
+
+  - cell with less than 5 data points may consider to take out (unstable
+    model)
+
+<!-- end list -->
+
+``` r
+xtabs(~ home_discharge1+ asthma1, data = model_data)
+```
+
+    ##                asthma1
+    ## home_discharge1   0   1
+    ##               0  39  14
+    ##               1 592 177
+
+``` r
+xtabs(~ home_discharge1+ hxcld1, data = model_data)
+```
+
+    ##                hxcld1
+    ## home_discharge1   0   1
+    ##               0  44   9
+    ##               1 626 143
+
+``` r
+xtabs(~ home_discharge1+ oxygen_sup1, data = model_data)
+```
+
+    ##                oxygen_sup1
+    ## home_discharge1   0   1
+    ##               0  50   3
+    ##               1 711  58
+
+  - we have a cell with only 3 counts may consider to take out.
+
+<!-- end list -->
+
+``` r
+xtabs(~ home_discharge1+ seizure1, data = model_data)
+```
+
+    ##                seizure1
+    ## home_discharge1   0   1
+    ##               0  20  33
+    ##               1 282 487
+
+``` r
+xtabs(~ home_discharge1+ nutr_support1, data = model_data)
+```
+
+    ##                nutr_support1
+    ## home_discharge1   0   1
+    ##               0  24  29
+    ##               1 382 387
+
+``` r
+xtabs(~ home_discharge1+ hemodisorder1, data = model_data)
+```
+
+    ##                hemodisorder1
+    ## home_discharge1   0   1
+    ##               0  44   9
+    ##               1 726  43
+
+``` r
+xtabs(~ home_discharge1+ crf1, data = model_data)
+```
+
+    ##                crf1
+    ## home_discharge1 FALSE TRUE
+    ##               0     6   47
+    ##               1    47  722
+
+``` r
+xtabs(~ home_discharge1+ level_13, data = model_data)
+```
+
+    ##                level_13
+    ## home_discharge1 FALSE TRUE
+    ##               0    10   43
+    ##               1   186  583
 
 Initially there were 19 pre-operative variables that could predict the
 main outcome `home_discharge` To select the variables for our model we
@@ -195,7 +332,7 @@ variables to binary variables (i.e. crf) due to small sample size. We
 finally eliminated variables such as `ethnicity` because there was a
 large number of patients who self-identified as “Other” and it is
 unclear how to use “Other” to create preditions. Therefore, our full
-regression model consisted of 12 variable. \#\#Logistic Regression
+regression model consisted of 12 variable. \#\# Logistic Regression
 Models Full
 Model
 
@@ -241,43 +378,80 @@ summary(mylogit)
     ## 
     ## Number of Fisher Scoring iterations: 6
 
-We further examined ways to improve our model fit, and eliminated
-variables that had cell counts \<=5) and those that had no support from
-the literature to be predictors for this outcome. The reduced model
-included 3 predictors.
-
-Reduced
-Model
+## Reduced model based on the cross tabs above (cells with counts \<=5)
 
 ``` r
-mylogit <- glm(home_discharge1 ~ age_years+ weight+hemodisorder1, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1+ asthma1 +crf1+ hxcld1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
 
     ## 
     ## Call:
-    ## glm(formula = home_discharge1 ~ age_years + weight + hemodisorder1, 
-    ##     family = "binomial", data = model_data)
+    ## glm(formula = home_discharge1 ~ age_years + weight + sex1 + asthma1 + 
+    ##     crf1 + hxcld1 + seizure1 + nutr_support1 + hemodisorder1 + 
+    ##     level_13, family = "binomial", data = model_data)
     ## 
     ## Deviance Residuals: 
     ##     Min       1Q   Median       3Q      Max  
-    ## -2.7637   0.2636   0.3260   0.3954   0.8769  
+    ## -3.0199   0.2533   0.3226   0.3983   1.0316  
     ## 
     ## Coefficients:
-    ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)     5.220506   0.869266   6.006 1.91e-09 ***
-    ## age_years      -0.190079   0.063298  -3.003  0.00267 ** 
-    ## weight          0.005297   0.015019   0.353  0.72433    
-    ## hemodisorder11 -1.275467   0.404645  -3.152  0.00162 ** 
+    ##                  Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)     5.2937661  1.1123973   4.759 1.95e-06 ***
+    ## age_years      -0.2026850  0.0664456  -3.050  0.00229 ** 
+    ## weight          0.0003142  0.0152806   0.021  0.98359    
+    ## sex11          -0.1566058  0.2965740  -0.528  0.59746    
+    ## asthma11       -0.2849236  0.3556209  -0.801  0.42302    
+    ## crf1TRUE        0.6969559  0.4799218   1.452  0.14644    
+    ## hxcld11         0.3457859  0.4130185   0.837  0.40247    
+    ## seizure11       0.0078499  0.3263220   0.024  0.98081    
+    ## nutr_support11 -0.3174756  0.3209992  -0.989  0.32265    
+    ## hemodisorder11 -1.2958398  0.4174579  -3.104  0.00191 ** 
+    ## level_13TRUE   -0.1409626  0.3785483  -0.372  0.70961    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## (Dispersion parameter for binomial family taken to be 1)
     ## 
     ##     Null deviance: 392.43  on 816  degrees of freedom
-    ## Residual deviance: 374.05  on 813  degrees of freedom
+    ## Residual deviance: 369.31  on 806  degrees of freedom
     ##   (5 observations deleted due to missingness)
-    ## AIC: 382.05
+    ## AIC: 391.31
+    ## 
+    ## Number of Fisher Scoring iterations: 6
+
+## Reduced based on literature and visualization
+
+``` r
+mylogit <- glm(home_discharge1 ~ age_years+ weight+hemodisorder1+crf1, data = model_data, family = "binomial")
+summary(mylogit)
+```
+
+    ## 
+    ## Call:
+    ## glm(formula = home_discharge1 ~ age_years + weight + hemodisorder1 + 
+    ##     crf1, family = "binomial", data = model_data)
+    ## 
+    ## Deviance Residuals: 
+    ##     Min       1Q   Median       3Q      Max  
+    ## -2.7900   0.2577   0.3239   0.3917   0.8581  
+    ## 
+    ## Coefficients:
+    ##                 Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)     4.636257   0.946919   4.896 9.77e-07 ***
+    ## age_years      -0.189979   0.063500  -2.992  0.00277 ** 
+    ## weight          0.003662   0.015121   0.242  0.80865    
+    ## hemodisorder11 -1.266583   0.405782  -3.121  0.00180 ** 
+    ## crf1TRUE        0.697471   0.471261   1.480  0.13887    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## (Dispersion parameter for binomial family taken to be 1)
+    ## 
+    ##     Null deviance: 392.43  on 816  degrees of freedom
+    ## Residual deviance: 372.13  on 812  degrees of freedom
+    ##   (5 observations deleted due to missingness)
+    ## AIC: 382.13
     ## 
     ## Number of Fisher Scoring iterations: 6
 
@@ -297,7 +471,7 @@ We use the null and deviance residuals
 with(mylogit, null.deviance - deviance)
 ```
 
-    ## [1] 18.38129
+    ## [1] 20.29957
 
 with Df
 
@@ -305,7 +479,7 @@ with Df
 with(mylogit, df.null - df.residual)
 ```
 
-    ## [1] 3
+    ## [1] 4
 
 We compute the Chi-Square
 test
@@ -314,7 +488,7 @@ test
 with(mylogit, pchisq(null.deviance - deviance, df.null - df.residual, lower.tail = FALSE))
 ```
 
-    ## [1] 0.0003669677
+    ## [1] 0.0004357827
 
 The chi-square provides a p-value=0.000367 (p\< 0.001), thus, our model
 as a whole fits significantly better than the null model.
@@ -326,12 +500,12 @@ model’s log likelihood:
 logLik(mylogit)
 ```
 
-    ## 'log Lik.' -187.0252 (df=4)
+    ## 'log Lik.' -186.0661 (df=5)
 
-\#\#Preliminary intrepretation 1. For every 1 year increase in age the
-log odds of homedischarge (versus discharge to other healthcare
-facilities) decreases by 0.19. 2. Having a pre-existing hematologic
-disorder decreases the log odds of being discharged to home by 1.275.
+Preliminary intrepretation 1. For every 1 year increase in age the log
+odds of homedischarge (versus discharge to other healthcare facilities)
+decreases by 0.19. 2. Having a pre-existing hematologic disorder
+decreases the log odds of being discharged to home by 1.275. \#\#
 Confidence intervals for the log odds coeficients (log-likelihood
 function)
 
@@ -340,34 +514,37 @@ confint(mylogit)
 ```
 
     ##                      2.5 %      97.5 %
-    ## (Intercept)     3.59610022  7.01043444
-    ## age_years      -0.31701317 -0.06855149
-    ## weight         -0.02226231  0.03632023
-    ## hemodisorder11 -2.03308920 -0.42946932
+    ## (Intercept)     2.86263258  6.58371920
+    ## age_years      -0.31735438 -0.06811205
+    ## weight         -0.02406641  0.03490964
+    ## hemodisorder11 -2.02655603 -0.41853815
+    ## crf1TRUE       -0.32129219  1.55642219
 
-Confidence intervals using the standard errors
+## Confidence intervals using the standard errors
 
 ``` r
 confint.default(mylogit)
 ```
 
     ##                      2.5 %      97.5 %
-    ## (Intercept)     3.51677550  6.92423741
-    ## age_years      -0.31414044 -0.06601711
-    ## weight         -0.02413971  0.03473316
-    ## hemodisorder11 -2.06855597 -0.48237830
+    ## (Intercept)     2.78032984  6.49218350
+    ## age_years      -0.31443545 -0.06552164
+    ## weight         -0.02597433  0.03329778
+    ## hemodisorder11 -2.06190169 -0.47126364
+    ## crf1TRUE       -0.22618344  1.62112628
 
-Exponantiate to odds ratios and Confidence intervals
+### Exponantiate to odds ratios and Confidence intervals
 
 ``` r
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
 ```
 
-    ##                         OR      2.5 %       97.5 %
-    ## (Intercept)    185.0278684 36.4557874 1108.1358199
-    ## age_years        0.8268940  0.7283212    0.9337454
-    ## weight           1.0053108  0.9779837    1.0369879
-    ## hemodisorder11   0.2793005  0.1309304    0.6508544
+    ##                         OR      2.5 %      97.5 %
+    ## (Intercept)    103.1574716 17.5075564 723.2241522
+    ## age_years        0.8269769  0.7280727   0.9341558
+    ## weight           1.0036684  0.9762209   1.0355261
+    ## hemodisorder11   0.2817930  0.1317886   0.6580080
+    ## crf1TRUE         2.0086672  0.7252113   4.7418255
 
 \#\#Data interpretation For every one year increase in age, the odds of
 being discharged home (versus being discharged to another health care
