@@ -55,12 +55,11 @@ cp_spine_tidy = nsqipspineCP_1617 %>%
   filter(home_discharge != "NA") %>% 
   select(pufyear_x:ped_spn_post_neurodeftype, age_years, sex, height, weight, bmi, ethnicity_hispanic, race, asa_status, transt, ventilat, asthma, hxcld, oxygen_sup, crf, impcogstat, seizure, nutr_support, hemodisorder, level_13, optime, tothlos, d_opto_dis, death30yn, supinfec, wndinfd, orgspcssi, dehis, oupneumo, pulembol, renainsf, urninfec, cszre, neurodef, cdarrest, othbleed, bleed_ml_tot, othcdiff, othsysep, unplannedreadmission1, reoperation, dischdest, home_discharge)
 ```
-NOTE: THE ABOVE SECTION IS THE SAME AS IN DATA VISUALIZATION NOT NEEDED IN THE FINAL REPORT
-## Analysis and models
-Our goal is to develop a model,in which we can use important pre-operative factors to predict the patient's discharge at home. 
-Selection of predictors to include in the initial model
-Data processing, elimination of missing data, and data selection for the model. We observe that all cp patients in the dataset were patient who came from home. 
 
+## Analysis and models
+Given the sample size (small) our analysis goal is to develop a model of possible assosiations between pre-surgical indicators and the outcome. We use crosstabs and chisquare tests to examine associations between each of the indicators and the outcome (Preliminary analysis) and logistic regression to build our models.
+
+Data processing, elimination of missing data, and data selection for the analysis. 
 ```{r, message=FALSE, warning=FALSE}
 model_data = cp_spine_tidy %>% 
   mutate(
@@ -130,82 +129,158 @@ home_discharge1=as.factor(home_discharge1),
   transt1=as.factor(transt1))%>%
   select(age_years, bmi, weight, height, sex1, transt1, crf1, race1, asa_level, ventilat1, asthma1,impcogstat1, hxcld1, oxygen_sup1, seizure1, nutr_support1, hemodisorder1, level_13, home_discharge1) 
 ```
-Overall quick descriptives for the data entered in the model suggest that all cp patients came from home.
+Checking the data with quick descriptives
 ```{r, message=FALSE, warning=FALSE}
 summary(model_data)
 ```
 
-```{r, message=FALSE, warning=FALSE}
-xtabs(~ home_discharge1+ transt1, data = model_data)
-```
-2. Two-way contingency tables of categorical outcome and predictors we want
-## to make sure there are no cells with n=0
+##Preliminary Analysis Crosstabs & Chisqaure tests of association of each of the indicators with the outcome.
+Two-way contingency tables of categorical outcome and predictors identified. Ensure that there no cells with counts <=5 and compute Chi-square tests to examine the association of each of the indicators to the outcome. 
+
+##Sex
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ sex1, data = model_data)
 ```
+*no cells with counts<=5
+```{r, message=FALSE, warning=FALSE}
+tbl<-xtabs(~ home_discharge1+ sex1, data = model_data)
+chisq.test(tbl) 
+```
+*Chi-square test reveals no association between Sex and Home_discharge (p>.05).
 
+## Race
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ race1, data = model_data)
 ```
-#Race cross tab with home_dicharge1 has 1 cell with 0 data point and two more cells with 15 and bellow data points. Thus race will be excluded from the model. 
+*Race cross tab with home_dicharge1 has 1 cell with 0 data point and two more cells with 15 and bellow data points. Thus race will be excluded from the model. 
 
+## ASA Classification (ASA_level)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ asa_level, data = model_data)
 ```
-* Asa_level has a cell with 2 data points we  need to take out from the model (unstable model.
+*Asa_level has a cell with 2 data points we  need to take out from the model (unstable model.
+
+## Ventilator Dependence (Ventilat1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ ventilat1, data = model_data)
 ```
-* cell with less than 5 data points may consider to take out (unstable model)
+*Cell with less than 5 data points may consider to take out (unstable model)
+
+## Asthma1
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ asthma1, data = model_data)
 ```
+*no cells with counts<=5
+```{r, message=FALSE, warning=FALSE}
+tbl<-xtabs(~ home_discharge1+ asthma1, data = model_data)
+chisq.test(tbl) 
+```
+*Chi-square test reveals no association between Asthma1 and Home_discharge (p>.05).
 
+## Chronic lung disease (hxcld1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ hxcld1, data = model_data)
 ```
+*no cells with counts<=5
+```{r, message=FALSE, warning=FALSE}
+tbl<-xtabs(~ home_discharge1+ hxcld1, data = model_data)
+chisq.test(tbl) 
+```
+*Chi-square test reveals no association between hxcld1 and Home_discharge (p>.05).
 
+##Oxygen support (oxygen_sup1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ oxygen_sup1, data = model_data)
 ```
-* we have a cell with only 3 counts may consider to take out.
+* we have a cell with only 3 counts, will not include.
+
+## Seizures
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ seizure1, data = model_data)
 ```
+*no cells with counts<=5
+```{r, message=FALSE, warning=FALSE}
+tbl<-xtabs(~ home_discharge1+ seizure1, data = model_data)
+chisq.test(tbl) 
+```
+*Chi-square test reveals no association between seizure1 and Home_discharge (p>.05).
 
+##Nutrition support (nutr_support1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ nutr_support1, data = model_data)
 ```
+*no cells with counts<=5
+```{r, message=FALSE, warning=FALSE}
+tbl<-xtabs(~ home_discharge1+ nutr_support1, data = model_data)
+chisq.test(tbl) 
+```
+*Chi-square test reveals no association between nutr_support1 and Home_discharge (p>.05).
 
+#Pre-existing hemotological disorder (hemodisorder1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ hemodisorder1, data = model_data)
 ```
+*no cells with counts<=5
+```{r, message=FALSE, warning=FALSE}
+tbl<-xtabs(~ home_discharge1+ hemodisorder1, data = model_data)
+chisq.test(tbl) 
+```
+*Chi-square test reveals a significant association between hemodisorder1 and Home_discharge (p<.05).
 
+## Cardiac Risk Factor (crf1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ crf1, data = model_data)
 ```
+*no cells with counts<=5
+```{r, message=FALSE, warning=FALSE}
+tbl<-xtabs(~ home_discharge1+ crf1, data = model_data)
+chisq.test(tbl) 
+```
+*Chi-square test reveals no significant association between crf1 and Home_discharge (p>.05).
 
+## Spine fusion level_13
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ level_13, data = model_data)
 ```
-Initially there were 19 pre-operative variables that could predict the main outcome `home_discharge` To select the variables for our model we used findings from our literature review and results from preliminary analysis (crosstabs). From groups of variables that were highly correlated with each other, we  selected one variable that was supported from the literature. For example, we used weight instead of height and bmi, as height is a non reliable measure for individuals with CP and has a lot of missing values in the dataset. After the cross tabs exploratory analysis (see CPspine extensive), we eliminated variables that presented with 0 data in at least one of the cells. We combined multilevel variables to binary variables (i.e. crf) due to small sample size. We finally eliminated variables such as `ethnicity` because there was a large number of patients who self-identified as "Other" and it is unclear how to use "Other" to create preditions. Therefore, our full regression model consisted of 14 variables. 
+*no cells with counts<=5
+```{r, message=FALSE, warning=FALSE}
+tbl<-xtabs(~ home_discharge1+ level_13, data = model_data)
+chisq.test(tbl) 
+```
+*Chi-square test reveals no significant association between crf1 and Home_discharge (p>.05).
+
+Selection of variables for the Full Model
+Initially there were 18 pre-operative indicators to be considered for the main outcome `home_discharge` To select the variables for our full model we used the following criteria:
+
+1) From groups of variables that were highly correlated with each other, we selected one variable that was supported from the literature. For example, we used weight instead of height and bmi, as height is a non reliable measure for individuals with CP and has a lot of missing values in the dataset. 
+
+2) From the preliminary analysis (crosstabs) we identified and eliminated variables that presented with cell counts <=5. Thus, `race`, `asa_level1`, `ventilat1` and `oxygen_sup1` were not included in the model
+
+3) We finally eliminated variables such as `ethnicity` because there was a large number of patients who self-identified as "Other" and it is unclear how to use "Other" to create preditions. 
+
+Therefore, our full regression model consisted of 10 variables. 
 ##Logistic Regression Models
 Full Model
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1 + crf1+asa_level+ventilat1 +asthma1 +impcogstat1+ hxcld1 + oxygen_sup1 + seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1 + crf1+asthma1 +impcogstat1+ hxcld1+ seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
-We further examined ways to improve our model fit, and eliminated variables that had cell counts 
- <=5) and those that had no support from the literature to be predictors for this outcome. The reduced model included 6 predictors.
+Age and pre-existing hematological disorder were significant at a=0.05. We further examined ways to improve our model fit. Given the small sample size some variables known to the literature as predictors for complications in patients (not patients with CP) who undergo spinal fusion may have not been able to be identified. These are `asthma1`, `hxcrl`, `nutr_support1`, `level_13`. We run a reduced model with these variables as well as `age_years` and `hemodisorder1` .
  
-
 Reduced model has 6 indicators
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ weight+ asthma1+ hxcld1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ asthma1+ hxcld1 + `nutr_support1`+ hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
-We tested which of the two models (Full or Reduced) fits better. We see the deviance residuals, which are a measure of model fit. This part of output shows the distribution of the deviance residuals for individual cases used in the model. Compared to the other two models this fits better. AIC is also better (lower). Age variable is significant at a=.05,  the pre-existance of a hematologic disorder variable is significant at a=.05.
-In addition, we wanted to see if our model fits the data significantly better than a model with just the intercept (a null model). 
+When comparing the Full Model to the Reduced Model, we observe the distribution of the deviance residuals for individual cases used in the model. Compared to the full model the reduced model appears to fits better. AIC is also better (lower). Age  and the pre existence of hematologic disorder remain  significant at a=.05.
+Given that asthma is an important indicator for prediction of post surgical outcomes in the  general population who udergo spinal fusion surgery,  we run a reduced model with 3 indicators: age_years, asthma1, hemodisorder1
+
+Final Reduced model has 3 indicators
+```{r, message=FALSE, warning=FALSE}
+mylogit <- glm(home_discharge1 ~ age_years+ hemodisorder1+ asthma1, data = model_data, family = "binomial")
+summary(mylogit)
+```
+The model appears to fit better the data than the other two. We further explored if our model fits the data significantly better than a model with just the intercept (a null model). 
 
 We use the null and deviance residuals 
 ```{r, message=FALSE, warning=FALSE}
@@ -228,11 +303,9 @@ logLik(mylogit)
 ##Preliminary intrepretation for the betas 
 Two predictors in the model came up significant at a=.05.
 1. For every 1 year increase in age the log odds of homedischarge (versus discharge to other healthcare facilities) decreases by 0.19.
-2. Having a pre-existing hematologic disorder decreases the log odds of being discharged to home by 1.309.
+2. Having a pre-existing hematologic disorder decreases the log odds of being discharged to home by 1.24.
+3. Asthma does not appear to have a direct impact on the outcome.
 
-Although asthma, cardiac risk factors, nutritional support and level of fusion did not appear as significant in the model, we provide them here as they are clinically significant and connected to post-surgery complications and outcomes in the literature.
-3. Having asthma  decreases the log odds of being discharged to home by 0.372
-4. Having a level of fusion more than 13 decreases the log odds of being discharged at home by 0.179 
 Confidence intervals for the log odds coeficients (log-likelihood function)
 ```{r, message=FALSE, warning=FALSE}
 confint(mylogit)
@@ -246,7 +319,8 @@ Exponantiate to odds ratios and Confidence intervals
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
 ```
 ##Data interpretation
-For every one year  increase in age, the odds of being discharged home (versus being discharged to another health care facility) increase by 0.82. This means that for every year increase in age the odds of being release to a health care facility (not home) increase by (1/.82=1.22) by 22%.
-The odds of being discharged at home if you have a hemodisorder are 0.27.This means that if the patient has a pre-existing hematologic disorder the odds of being discharged to a health care facility are (1/.27=3.7) 3.7 the odds of being discharged to home. 
-Important pre-operative indicators such as asthma,and level of fusion did not appear as significant in the model, we provide them here for consideration for future research. 
-If a patient has asthma the odds of being discharged to home are 0.69.That is the odds of being released to a health care facility (not home) increase by (1/.82=1.44) by 44%. If a patient has a fusion level 13 and above the odds of being discharged home are 0.83.That is the odds of being released to a health care facility (not home) increase by (1/.82=1.44) by 20%.
+For every year increase in age the odds of being released to a health care facility (not home) increase by (1/.82=1.22) by 22% (all other variables remain constant).
+The odds of being discharged at home if you have a hemodisorder are 0.28.This means that if the patient with CP has a pre-existing hematologic disorder the odds of being discharged to a health care facility are (1/.27=3.7) 3.7 the odds of being discharged to home (all other variables remain constant). 
+Important pre-operative indicators that have been identified for other patients who undergo spinal fusion surgery such as asthma do not appear to have a direct impact on the outcome for individuals with CP. When we exponantiate the beta for Asthma, we observe that the odds for patients with CP who have asthma to develop complications and to be released to a health care facility (not home) increase by (1/.82=1.44) by 44%. However, this association seems influential  because it is probably correlated with another variable that we don't have in the data.
+## Discussion 
+Further studies need to expand on the results of our work for this population. Future studies can incorporate a larger number of patients with CP from future yearly releases of the NSQIP data.Studies should aim to create a prediction model for non-home discharges validated for this  population within and outside of the NSQIP database. They should further utilize the prediction model to create a risk score that aids clinical decision making. 
