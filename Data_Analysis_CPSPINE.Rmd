@@ -141,113 +141,120 @@ Two-way contingency tables of categorical outcome and predictors identified. Ens
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ sex1, data = model_data)
 ```
-*no cells with counts<=5
+no cells with counts<=5
+
 ```{r, message=FALSE, warning=FALSE}
 tbl<-xtabs(~ home_discharge1+ sex1, data = model_data)
 chisq.test(tbl) 
 ```
-*Chi-square test reveals no association between Sex and Home_discharge (p>.05).
+Chi-square test reveals no association between Sex and Home_discharge (p>.05).
 
 ## Race
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ race1, data = model_data)
 ```
-*Race cross tab with home_dicharge1 has 1 cell with 0 data point and two more cells with 15 and bellow data points. Thus race will be excluded from the model. 
+Race cross tab with home_dicharge1 has 1 cell with 0 data point and two more cells with 15 and bellow data points. Thus race will be excluded from the model. 
 
 ## ASA Classification (ASA_level)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ asa_level, data = model_data)
 ```
-*Asa_level has a cell with 2 data points we  need to take out from the model (unstable model.
+Asa_level has a cell with 2 data points we  need to take out from the model (unstable model.
 
 ## Ventilator Dependence (Ventilat1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ ventilat1, data = model_data)
 ```
-*Cell with less than 5 data points may consider to take out (unstable model)
+Cell with less than 5 data points may consider to take out (unstable model)
 
 ## Asthma1
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ asthma1, data = model_data)
 ```
-*no cells with counts<=5
+no cells with counts<=5
 ```{r, message=FALSE, warning=FALSE}
 tbl<-xtabs(~ home_discharge1+ asthma1, data = model_data)
 chisq.test(tbl) 
 ```
-*Chi-square test reveals no association between Asthma1 and Home_discharge (p>.05).
+Chi-square test reveals no association between Asthma1 and Home_discharge (p>.05).
 
 ## Chronic lung disease (hxcld1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ hxcld1, data = model_data)
 ```
-*no cells with counts<=5
+no cells with counts<=5
+
 ```{r, message=FALSE, warning=FALSE}
 tbl<-xtabs(~ home_discharge1+ hxcld1, data = model_data)
 chisq.test(tbl) 
 ```
-*Chi-square test reveals no association between hxcld1 and Home_discharge (p>.05).
+Chi-square test reveals no association between hxcld1 and Home_discharge (p>.05).
 
 ##Oxygen support (oxygen_sup1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ oxygen_sup1, data = model_data)
 ```
-* we have a cell with only 3 counts, will not include.
+we have a cell with only 3 counts, will not include.
 
 ## Seizures
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ seizure1, data = model_data)
 ```
-*no cells with counts<=5
+no cells with counts<=5
+
 ```{r, message=FALSE, warning=FALSE}
 tbl<-xtabs(~ home_discharge1+ seizure1, data = model_data)
 chisq.test(tbl) 
 ```
-*Chi-square test reveals no association between seizure1 and Home_discharge (p>.05).
+Chi-square test reveals no association between seizure1 and Home_discharge (p>.05).
 
 ##Nutrition support (nutr_support1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ nutr_support1, data = model_data)
 ```
-*no cells with counts<=5
+no cells with counts<=5
+
 ```{r, message=FALSE, warning=FALSE}
 tbl<-xtabs(~ home_discharge1+ nutr_support1, data = model_data)
 chisq.test(tbl) 
 ```
-*Chi-square test reveals no association between nutr_support1 and Home_discharge (p>.05).
+Chi-square test reveals no association between nutr_support1 and Home_discharge (p>.05).
 
 #Pre-existing hemotological disorder (hemodisorder1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ hemodisorder1, data = model_data)
 ```
-*no cells with counts<=5
+no cells with counts<=5
+
 ```{r, message=FALSE, warning=FALSE}
 tbl<-xtabs(~ home_discharge1+ hemodisorder1, data = model_data)
 chisq.test(tbl) 
 ```
-*Chi-square test reveals a significant association between hemodisorder1 and Home_discharge (p<.05).
+Chi-square test reveals a significant association between hemodisorder1 and Home_discharge (p<.05).
 
 ## Cardiac Risk Factor (crf1)
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ crf1, data = model_data)
 ```
-*no cells with counts<=5
+no cells with counts<=5
+
 ```{r, message=FALSE, warning=FALSE}
 tbl<-xtabs(~ home_discharge1+ crf1, data = model_data)
 chisq.test(tbl) 
 ```
-*Chi-square test reveals no significant association between crf1 and Home_discharge (p>.05).
+Chi-square test reveals no significant association between crf1 and Home_discharge (p>.05).
 
 ## Spine fusion level_13
 ```{r, message=FALSE, warning=FALSE}
 xtabs(~ home_discharge1+ level_13, data = model_data)
 ```
-*no cells with counts<=5
+no cells with counts<=5
+
 ```{r, message=FALSE, warning=FALSE}
 tbl<-xtabs(~ home_discharge1+ level_13, data = model_data)
 chisq.test(tbl) 
 ```
-*Chi-square test reveals no significant association between crf1 and Home_discharge (p>.05).
+Chi-square test reveals no significant association between crf1 and Home_discharge (p>.05).
 
 Selection of variables for the Full Model
 Initially there were 18 pre-operative indicators to be considered for the main outcome `home_discharge` To select the variables for our full model we used the following criteria:
@@ -265,28 +272,30 @@ Full Model
 mylogit <- glm(home_discharge1 ~ age_years+ weight+ sex1 + crf1+asthma1 +impcogstat1+ hxcld1+ seizure1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
-Age and pre-existing hematological disorder were significant at a=0.05. We further examined ways to improve our model fit. Given the small sample size some variables known to the literature as predictors for complications in patients (not patients with CP) who undergo spinal fusion may have not been able to be identified. For example `asthma1`, is a variable that has been associated with negative outocmes. Thus, we can run a reduced model with these  3 variables as well as `age_years` and `hemodisorder1` .
+Age and pre-existing hematological disorder were significant at a=0.05. We further examined ways to improve our model fit. Given the small sample size some variables known to the literature as predictors for complications in patients (not patients with CP) who undergo spinal fusion may have not been able to be identified. For example `asthma1`, `hxcld1`, `nutr_support1` and `level_13`, are variables that have been associated with negative outocmes. Thus, we can run a reduced model with these  3 variables as well as `age_years` and `hemodisorder1` .
 
-Final Reduced model has 3 indicators
+Reduced model has 6 indicators
 ```{r, message=FALSE, warning=FALSE}
-mylogit <- glm(home_discharge1 ~ age_years+ hemodisorder1+ asthma1, data = model_data, family = "binomial")
+mylogit <- glm(home_discharge1 ~ age_years+ asthma1+ hxcld1 + nutr_support1 + hemodisorder1+ level_13, data = model_data, family = "binomial")
 summary(mylogit)
 ```
-The model appears to fit better the data than the full model. we observe the distribution of the deviance residuals for individual cases used in the model. Compared to the full model the reduced model appears to fits better. AIC is also better (lower). Age  and the pre existence of hematologic disorder remain  significant at a=.05.
+The model appears to fit better the data than the full model. We observe the distribution of the deviance residuals for individual cases used in the model. Compared to the full model the reduced model appears to fits better. AIC is also better (lower). Age  and the pre existence of hematologic disorder remain  significant at a=.05.
 
 We use the null and deviance residuals 
 ```{r, message=FALSE, warning=FALSE}
 with(mylogit, null.deviance - deviance)
 ```
 with Df
+
 ```{r, message=FALSE, warning=FALSE}
 with(mylogit, df.null - df.residual)
 ```
-We  compute the Chi-Square test
+We compute the Chi-Square test
+
 ```{r, message=FALSE, warning=FALSE}
 with(mylogit, pchisq(null.deviance - deviance, df.null - df.residual, lower.tail = FALSE))
 ```
-The chi-square provides a p-value=0.0028 (p< 0.05), thus, our reduced model as a whole fits significantly better than the null model. 
+The chi-square provides a p-value=0.00192 (p< 0.05), thus, our reduced model as a whole fits significantly better than the null model. 
 
 We can use the likelihood ratio test (-2*log likelihood) to see the model’s log likelihood:
 ```{r, message=FALSE, warning=FALSE}
@@ -295,8 +304,8 @@ logLik(mylogit)
 ##Preliminary intrepretation for the betas 
 Two predictors in the model came up significant at a=.05.
 1. For every 1 year increase in age the log odds of homedischarge (versus discharge to other healthcare facilities) decreases by 0.19.
-2. Having a pre-existing hematologic disorder decreases the log odds of being discharged to home by 1.24.
-3. Asthma does not appear to have a direct impact on the outcome.
+2. Having a pre-existing hematologic disorder decreases the log odds of being discharged to home by 1.29.
+Surprisingly, we have not seen a significant impact of any of the comorbities or the severity of the scoliosis on the primary outcome. 
 
 Confidence intervals for the log odds coeficients (log-likelihood function)
 ```{r, message=FALSE, warning=FALSE}
@@ -310,10 +319,18 @@ Exponantiate to odds ratios and Confidence intervals
 ```{r, message=FALSE, warning=FALSE}
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
 ```
-##Data interpretation
+##Odds ratios interpretation
 For every year increase in age the odds of being released to a health care facility (not home) increase by (1/.82=1.22) by 22% (all other variables remain constant).
 The odds of being discharged at home if you have a pre-existing hematological disorder are 0.28.This means that if the patient with CP has a pre-existing hematologic disorder the odds of being discharged to a health care facility are (1/.27=3.7) 3.7 the odds of being discharged to home (all other variables remain constant). 
-Important pre-operative indicators that have been identified for other patients who undergo spinal fusion surgery, such as asthma, do not appear to have a direct impact on the outcome for individuals with CP. When we exponantiate the beta for Asthma, we observe that the odds for patients with CP who have asthma to develop complications and to be released to a health care facility (not home) increase by (1/.82=1.44) by 44%. Although not significant this association seems influential. This is  because it is probably correlated with another variable that we don't have in the data.
+Other co-morbidity variables
+Important pre-operative indicators that have been identified for other patients who undergo spinal fusion surgery, such as asthma, chronic lung disease, need for nutritional support and severity of the scoliosis do not appear to have a direct impact on the outcome for individuals with CP. When we exponantiate the betas for asthma, chronic lung disease, need for nutritional support and severity of the scoliosis, we observe the following odds ratios: 
+For patients with CP who have asthma the odds to develop complications and to be released to a health care facility (not home) increase by (1/.82=1.44) by 44%. 
+For patients with CP who have nutritional support the odds to develop complications and to be released to a health care facility (not home) increase by (1/.72=1.36) by 36%.
+For patients with CP who have severe scoliosis (level_13)  the odds to develop complications and to be released to a health care facility (not home) increase by (1/.88=1.36) by 13%.
+For patients with CP having chronic lung disease appears to be protective against going to a health care facility.
+
+Although these commorbidity variables are not significant the OR is not close to 1 which may indicate that with a larger sample size these variables could be significant. 
+
 ## Discussion 
 Further studies need to expand on the results of our work for this population. Future studies can incorporate a larger number of patients with CP from future yearly releases of the NSQIP data.Studies should aim to create a prediction model for non-home discharges validated for this  population within and outside of the NSQIP database. They should further utilize the prediction model to create a risk score that aids clinical decision making.
 ```
