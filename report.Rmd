@@ -2,6 +2,7 @@
 ---
 title: "Predicting Non-Routine Discharge in Cerebral Palsy Patients Undergoing Spinal Fusion"
 output: github_document
+always_allow_html: yes
 ---
 
 ![Wheelchair](./images/wheelchair.jpg)
@@ -11,11 +12,9 @@ output: github_document
 * <a href="#intro">Introduction</a>
 * <a href="#characterize">Data Characterization</a>
 * <a href="#tidying">Tidying The Data</a>
-* <a href="#lit">Literature Review</a>
-* <a href="#sub">Subanalyses</a>
-* <a href="#regress">Regression Analysis</a>
-* <a href="#conclusion">Discussion</a>
-* <a href="#changes">Changes Mid-Report</a>
+* <a href="#explore">Data Exploration</a>
+* <a href="#model">Modeling Discharge Status</a>
+* <a href="#discuss">Discussion</a>
 * <a href="#refs">References</a>
 
 ---
@@ -185,9 +184,110 @@ tab4 <- CreateTableOne(vars = myVars, data = cp_spine_table2, factorVars = catVa
 tab4df = print(tab4)
 ```
 
-The most common major adverse outcome was non-home discharge, impacting 6.4% (n=53) of patients. 
+The most common major adverse outcome was non-home discharge, impacting 6.4% (n=53) of patients. Given the frequency of non-home discharge and our clinical interests in preventing adverse peri-operative outcomes and in rehabilitation of children with CP, we decided to focus our analysis on this outcome. 
 
-## Exploring Relationships
+The following plot shows similar numbers of male and female patients who had home vs. non-home discharge.
+```{r, message=FALSE, warning=FALSE}
+cp_spine_tidy %>%
+  group_by(home_discharge) %>% 
+  count(sex) %>% 
+  plot_ly(
+    x = ~home_discharge, y = ~n, color = ~sex, type = "bar"
+    ) %>% 
+  layout(
+    xaxis = list(title = "Home Discharge"),
+    yaxis = list(title = "Number of Patients"))
+```
+
+The distribution of ages for patients with non-home discharge trends higher than patients with home discharge.
+```{r, message=FALSE, warning=FALSE}
+cp_spine_tidy %>%
+  plot_ly(y = ~age_years, color = ~home_discharge, type = "box",
+          colors = "Set2") %>% 
+  layout(
+    xaxis = list(title = "Home Discharge"),
+    yaxis = list(title = "Age (Years)"))
+```
+
+The following plots show the percent of patients with non-home discharge, stratified by race or ethnicity.
+```{r, message=FALSE, warning=FALSE}
+cp_spine_tidy %>%
+  group_by(home_discharge) %>% 
+  count(race) %>% 
+  pivot_wider(
+    names_from = "home_discharge",
+    values_from = "n"
+  ) %>% 
+  janitor::clean_names() %>% 
+  mutate(percent_nothome = (false/(true + false))*100) %>% 
+  replace(is.na(.), 0) %>% 
+  plot_ly(
+    x = ~race, y = ~percent_nothome, type = "bar"
+    ) %>% 
+  layout(
+    xaxis = list(title = "Race"),
+    yaxis = list(title = "Percent Non-Home Discharge"))
+```
+
+```{r, message=FALSE, warning=FALSE}
+cp_spine_tidy %>%
+  group_by(home_discharge) %>% 
+  count(ethnicity_hispanic) %>% 
+  rename(ethnicity = ethnicity_hispanic) %>% 
+  mutate(ethnicity = case_when(
+    ethnicity == "No" ~ "Non-Hispanic",
+    ethnicity == "Yes" ~ "Hispanic",
+    ethnicity == "NULL" ~ "Other/Did Not Answer"
+  )) %>% 
+    pivot_wider(
+    names_from = "home_discharge",
+    values_from = "n"
+  ) %>% 
+  janitor::clean_names() %>% 
+  mutate(percent_nothome = (false/(true + false))*100) %>% 
+  replace(is.na(.), 0) %>% 
+  plot_ly(
+    x = ~ethnicity, y = ~percent_nothome, type = "bar"
+    ) %>% 
+  layout(
+    xaxis = list(title = "Ethnicity"),
+    yaxis = list(title = "Percent Non-Home Discharge"))
+```
+Because of the large "Other/Did Not Answer" group, it is difficult to interpret the contribution of ethnicity as a risk factor for non-home discharge.
+
+While we focused on the home discharge outcome, during exploratory analysis, we did attempt to see if there were any other interesting relationships between potential risk factors and outcomes. For example:
+
+### Age and Operation Time
+```{r, message=FALSE, warning=FALSE}
+cp_spine_tidy %>%
+  plot_ly(
+    x = ~age_years, y = ~optime, type = "scatter", mode = "markers", alpha = 0.5)  %>% 
+  layout(
+    xaxis = list(title = "Age (Years)"),
+    yaxis = list(title = "Length of Operation (Minutes)"))
+```
+
+### Operation Time and Bleeding
+```{r, message=FALSE, warning=FALSE}
+cp_spine_tidy %>%
+  plot_ly(
+    x = ~optime, y = ~bleed_ml_tot, type = "scatter", mode = "markers", alpha = 0.5)  %>% 
+  layout(
+    xaxis = list(title = "Length of Operation (Minutes)"),
+    yaxis = list(title = "Blood Loss (mL)"))
+```
+
+### Bleeding and Length of Stay
+```{r, message=FALSE, warning=FALSE}
+cp_spine_tidy %>%
+  plot_ly(
+    x = ~bleed_ml_tot, y = ~tothlos, type = "scatter", mode = "markers", alpha = 0.5)  %>% 
+  layout(
+    xaxis = list(title = "Blood Loss (mL)"),
+    yaxis = list(title = "Length of Stay (Days)"))
+```
+
+There were no clear relationships between single predictors and outcomes, which lead us to attempt to build a model that incorporates multiple predictors for our outcome of interest.
 
 <h1 id="model">Modeling Discharge Status</h1>
 
@@ -206,3 +306,5 @@ The most common major adverse outcome was non-home discharge, impacting 6.4% (n=
 ## Major Findings
 
 ## Future Directions
+
+<h1 id="refs">Referenes</h1>
